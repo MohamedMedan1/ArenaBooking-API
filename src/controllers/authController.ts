@@ -50,6 +50,7 @@ const protect = (Model: MongooseModel<IUser>) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     // 1)- Catch Token
     const token = req.headers.authorization?.split(" ")[1];
+    console.log(token);
     if (!token) {
       return next(new AppError("You are not logged in! Please log in.", 401));
     }
@@ -73,7 +74,6 @@ const protect = (Model: MongooseModel<IUser>) =>
     }
 
     req.user = user;
-    console.log(req.user);
     next();
   });
 

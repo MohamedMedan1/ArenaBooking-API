@@ -9,6 +9,14 @@ const categorySchema = new Schema<ICategory>({
     minlength: [3, "Category name should be at least 3 characters!"],
     maxlength: [20, "Category name should be at most 20 characters!"],
   },
+  image: {
+    type: String,
+    required: [true, "Please provide category image!"],
+  },
+  imagePublicId: {
+    type: String,
+    required: [true, "Please provide category image public ID!"],
+  },
   createdAt: {
     type: Date,
     default: Date.now,

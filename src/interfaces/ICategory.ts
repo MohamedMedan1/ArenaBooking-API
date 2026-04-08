@@ -1,4 +1,6 @@
-export interface ICategory extends Document{
-  name: string,
-  createdAt:Date
+export interface ICategory extends Document {
+  name: string;
+  image: string;
+  imagePublicId: string;
+  createdAt: Date;
 }
