@@ -1,8 +1,8 @@
-import {Model as MongooseModel} from "mongoose"
+import { Model as MongooseModel } from "mongoose";
+import { Request, Response, NextFunction } from "express";
 import { IUser } from "../interfaces/IUser";
 import catchAsync from "../utils/catchAsync";
-import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 const generateJWTAndSendResponse = (
   res: Response,
@@ -20,7 +20,7 @@ const generateJWTAndSendResponse = (
   });
 };
 
-const register = (Model:MongooseModel<IUser>) =>
+const register = (Model: MongooseModel<IUser>) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const newUser = await Model.create(req.body);
 
@@ -47,4 +47,48 @@ const login = (Model: MongooseModel<IUser>) =>
     generateJWTAndSendResponse(res, user, 200);
   });
 
-export { register, login };
+const protect = (Model: MongooseModel<IUser>) =>
+  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    // 1)- Catch Token
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return next();
+      // Will Handle This Error Later
+    }
+
+    // 2)- Token is valid
+    const decode = jwt.verify(token!, process.env.JWT_SECRET!) as JwtPayload;
+
+    // 3)- Check if user with id in JWT is exist
+    const user = await Model.findById(decode?.id);
+    if (!user) {
+      return next();
+      // Will Handle This Error Later
+    }
+
+    if (user.isPasswordChangedAfterLogin(decode?.iat!)) {
+      return next();
+      // Will Handle This Error Later
+    }
+
+    req.user = user;
+    console.log(req.user);
+    next();
+  });
+
+//roles ["manager","assistant"]
+const restrictTo = (...roles: string[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return next();
+      // Will Handle This Error Later
+    }
+    if (req.user.type === "Client" || !roles.includes((req.user as any).role)) {
+      return next();
+      // Will Handle This Error Later
+    }
+    next();
+  };
+};
+
+export { register, login, protect, restrictTo };

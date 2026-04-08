@@ -55,6 +55,7 @@ const userSchema = new Schema<IUser>(
       type: Date,
       default: Date.now,
     },
+    passwordChangedAt: Date,
   },
   options,
 );
@@ -68,9 +69,22 @@ userSchema.pre<IUser>("save", async function () {
 });
 
 // Instance Method for password correctness checking
-userSchema.methods.isCorrectPassword = async function (this: IUser, candidatePassword: string): Promise<boolean> {
+userSchema.methods.isCorrectPassword = async function (
+  this: IUser,
+  candidatePassword: string,
+): Promise<boolean> {
   return await bcrypt.compare(candidatePassword, this.password);
 };
+
+
+// Instance Method for password changing checking
+userSchema.methods.isPasswordChangedAfterLogin = function (jwtTimeStamp:number):boolean {  
+  if (this.passwordChangedAt) {
+    const changingPasswordTimeStamp:number = Math.floor(new Date(this.passwordChangedAt).getTime() / 1000);
+    return changingPasswordTimeStamp > jwtTimeStamp;
+  }
+  return false;
+}
 
 const User = model<IUser>("User", userSchema);
 
