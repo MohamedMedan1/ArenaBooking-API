@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import adminRouter from "./routes/adminRoutes";
 import clientRouter from "./routes/clientRoutes";
 import categoryRouter from "./routes/categoryRoutes";
+import { globalErrorHandler } from "./controllers/errorController";
 
 dotenv.config({ path: "./config.env" });
 const app = express();
@@ -14,5 +15,7 @@ app.use(express.json({ limit: "10kb" }));
 app.use("/api/v1/admins", adminRouter);
 app.use("/api/v1/clients", clientRouter);
 app.use("/api/v1/categories", categoryRouter);
+
+app.use(globalErrorHandler);
 
 export { app };

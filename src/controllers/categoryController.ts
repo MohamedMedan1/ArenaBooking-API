@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import catchAsync from "../utils/catchAsync";
 import Category from "../models/categoryModel";
+import { AppError } from "../utils/appError";
 
 const getAllCategories = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -31,8 +32,7 @@ const getCategory = catchAsync(
     const category = await Category.findById(id);
 
     if (!category) {
-      return next();
-      // Will handle this error later
+      return next(new AppError("There is no category with that ID",404));
     }
 
     res.status(200).json({
@@ -51,8 +51,7 @@ const updateCategory = catchAsync(
     });
 
     if (!category) {
-      return next();
-      // Will handle this error later
+      return next(new AppError("There is no category with that ID",404));
     }
 
     res.status(200).json({

@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import { IUser } from "../interfaces/IUser";
 import catchAsync from "../utils/catchAsync";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { AppError } from "../utils/appError";
 
 const generateJWTAndSendResponse = (
   res: Response,
@@ -32,16 +33,14 @@ const login = (Model: MongooseModel<IUser>) =>
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return next();
-      // Will Handle This Error Later
+      return next(new AppError("Please provide your email and password", 400));
     }
 
     // 1)- Check if email is already exist
     const user = await Model.findOne({ email }).select("+password");
 
     if (!user || !(await user.isCorrectPassword(password))) {
-      return next();
-      // Will Handle This Error Later
+      return next(new AppError("Your email or password is incorrect!", 400));
     }
 
     generateJWTAndSendResponse(res, user, 200);
@@ -52,8 +51,7 @@ const protect = (Model: MongooseModel<IUser>) =>
     // 1)- Catch Token
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
-      return next();
-      // Will Handle This Error Later
+      return next(new AppError("You are not logged in! Please log in.", 401));
     }
 
     // 2)- Token is valid
@@ -62,13 +60,16 @@ const protect = (Model: MongooseModel<IUser>) =>
     // 3)- Check if user with id in JWT is exist
     const user = await Model.findById(decode?.id);
     if (!user) {
-      return next();
-      // Will Handle This Error Later
+      return next(new AppError("There is no user with that Id", 404));
     }
 
     if (user.isPasswordChangedAfterLogin(decode?.iat!)) {
-      return next();
-      // Will Handle This Error Later
+      return next(
+        new AppError(
+          "You changed password after login please, log in again",
+          401,
+        ),
+      );
     }
 
     req.user = user;
@@ -80,12 +81,12 @@ const protect = (Model: MongooseModel<IUser>) =>
 const restrictTo = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
-      return next();
-      // Will Handle This Error Later
+      return next(new AppError("You are not logged in! Please log in.", 401));
     }
     if (req.user.type === "Client" || !roles.includes((req.user as any).role)) {
-      return next();
-      // Will Handle This Error Later
+      return next(
+        new AppError("You are not authorized to perform that action", 403),
+      );
     }
     next();
   };
