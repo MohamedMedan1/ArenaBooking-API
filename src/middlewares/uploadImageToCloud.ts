@@ -1,11 +1,11 @@
 import { Request,Response,NextFunction } from "express";
 import {cloudinary} from "../config/cloudinary"
 
-const uploadImageToCloud = (req:Request, res:Response, next:NextFunction) => {
+const uploadImageToCloud = (folderName:string)=>(req:Request, res:Response, next:NextFunction) => {
   if (!req.file || !req.file.buffer) return next();
 
   const resultOfCloud = cloudinary.uploader.upload_stream(
-    { folder: "arenaBooking/categories" },
+    { folder: `arenaBooking/${folderName}` },
     (error, result) => {
       if (error) return next(error);
       req.body.image = result?.secure_url;

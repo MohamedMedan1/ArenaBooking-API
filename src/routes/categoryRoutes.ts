@@ -13,6 +13,7 @@ import { uploadImageToCloud } from "../middlewares/uploadImageToCloud";
 import { protect, restrictTo } from "../controllers/authController";
 import Admin from "../models/adminModel";
 import { removeImage } from "../middlewares/removeImage";
+import Category from "../models/categoryModel";
 
 const router = express.Router();
 
@@ -23,12 +24,12 @@ router.use(restrictTo("manager"));
 router
   .route("/")
   .get(getAllCategories)
-  .post(uploadImage,resizeImage,uploadImageToCloud,normalizeCategoryName, createNewCategory);
+  .post(uploadImage,resizeImage,uploadImageToCloud("categories"),normalizeCategoryName, createNewCategory);
 
 router
   .route("/:id")
   .get(getCategory)
-  .patch(uploadImage,removeImage,resizeImage,uploadImageToCloud,normalizeCategoryName,updateCategory)//User Upload New Image => Remove Old One from Cloud => Add New One Into Cloud => Update Image URL AND ID
-  .delete(removeImage,deleteCategory);
+  .patch(uploadImage,removeImage(Category),resizeImage,uploadImageToCloud("categories"),normalizeCategoryName,updateCategory)//User Upload New Image => Remove Old One from Cloud => Add New One Into Cloud => Update Image URL AND ID
+  .delete(removeImage(Category),deleteCategory);
 
 export default router;

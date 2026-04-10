@@ -1,3 +1,4 @@
+import {initJobs} from "./jobs/index"
 import { app } from "./app";
 import mongoose from "mongoose";
 
@@ -5,7 +6,10 @@ const DB_URL = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWO
 
 mongoose
   .connect(DB_URL)
-  .then(() => console.log("DateBase connected successfully!"))
+  .then(() => {
+    initJobs();
+    console.log("DateBase connected successfully!")
+  })
   .catch((err) => console.error("Database connection error:", err));
 
 const PORT = process.env.PORT || 8000;

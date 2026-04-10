@@ -1,4 +1,4 @@
-import { Schema, model} from "mongoose";
+import { Schema, model } from "mongoose";
 import { IField } from "../interfaces/IField";
 
 const fieldSchema = new Schema<IField>({
@@ -28,7 +28,7 @@ const fieldSchema = new Schema<IField>({
   category: {
     type: Schema.Types.ObjectId,
     ref: "Category",
-    required: [true,"Please provide category Id !"],
+    required: [true, "Please provide category Id !"],
   },
   rating: {
     type: Number,
@@ -36,37 +36,41 @@ const fieldSchema = new Schema<IField>({
     min: [0, "Field rating should be at least 0!"],
     max: [5, "Field rating should be at most 5 !"],
   },
-  timeSlots: [{
-    date: {
-      type: Date,
-      default:Date.now
+  timeSlots: [
+    {
+      date: {
+        type: Date,
+        default: Date.now,
+      },
+      times: [
+        {
+          startTime: String,
+          endTime: String,
+          duaration: {
+            type: Number,
+            default: 2,
+          },
+          isBooked: {
+            type: Boolean,
+            default: false,
+          },
+          atNight: {
+            type: Boolean,
+            default: false,
+          },
+          nightCost: {
+            type: Number,
+            default: 0,
+          },
+        },
+      ],
     },
-    times: [{
-      startTime: Date,
-      endTime: Date,
-      duaration: {
-        type: Number,
-        default:2,
-      },
-      isBooked: {
-        type: Boolean,
-        default:false,
-      },
-      atNight: {
-        type: Boolean,
-        default:false,
-      },
-      nightCost:{
-        type: Number,
-        default:0,
-      },
-    }]
-  }],
-  createdAt: {
-    type: Date,
-    default: Date.now,
+  ],
+  imagePublicId: {
+    type: String,
+    required: [true, "Please provide category image public ID!"],
   },
-});
+},{ timestamps: true });
 
 const Field = model<IField>("Field", fieldSchema);
 export { Field };
