@@ -46,7 +46,7 @@ const fieldSchema = new Schema<IField>({
         {
           startTime: String,
           endTime: String,
-          duaration: {
+          duration: {
             type: Number,
             default: 2,
           },

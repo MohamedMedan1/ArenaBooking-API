@@ -29,7 +29,7 @@ const generateSlots = (
       const atNight = (hour >= 0 && hour <= 4) || (hour >= 18 && hour <= 22);
       const newTime: INewTime = {
         startTime: `${hour.toString().padStart(2, "0")}:00`,
-        endTime: `${(hour + 2).toString().padStart(2, "0")}:00`,
+        endTime: `${(hour + 2 === 24 ? 0 : hour + 2 ).toString().padStart(2, "0")}:00`,
         duration: 2,
         isBooked: false,
         atNight,
