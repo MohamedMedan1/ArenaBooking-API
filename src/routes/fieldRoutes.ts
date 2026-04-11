@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.route("/")
   .get(getAllFields)
-  .post(uploadImage, resizeImage, uploadImageToCloud("fields"),generateTimeSlots(7,0.1), createNewField);
+  .post(uploadImage, resizeImage, uploadImageToCloud("fields"),generateTimeSlots, createNewField);
   
 router.route("/:id")
   .delete(removeImage(Field),deleteField);

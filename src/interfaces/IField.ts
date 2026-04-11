@@ -10,4 +10,5 @@ export interface IField extends Document {
   timeSlots: ITimeSlot[];
   category: Types.ObjectId;
   rating?: number;
+  lastSlotAvailable:Date,
 }

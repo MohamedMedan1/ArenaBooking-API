@@ -70,6 +70,7 @@ const fieldSchema = new Schema<IField>({
     type: String,
     required: [true, "Please provide category image public ID!"],
   },
+  lastSlotAvailable:Date
 },{ timestamps: true });
 
 const Field = model<IField>("Field", fieldSchema);
