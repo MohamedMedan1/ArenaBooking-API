@@ -1,4 +1,4 @@
-import {Schema,model} from "mongoose";
+import { Schema, model } from "mongoose";
 import { IBooking } from "../interfaces/IBooking";
 
 const bookingSchema = new Schema<IBooking>(
@@ -6,7 +6,6 @@ const bookingSchema = new Schema<IBooking>(
     bookingNumber: {
       type: String,
       unique: true,
-      required: true,
       min: 1,
     },
     field: {
@@ -46,7 +45,6 @@ const bookingSchema = new Schema<IBooking>(
     },
     remaining: {
       type: Number,
-      required: [true, "Please provide remaining of price of Booking"],
     },
     isPaid: {
       type: Boolean,
@@ -67,10 +65,9 @@ const bookingSchema = new Schema<IBooking>(
 bookingSchema.pre<IBooking>("save", function () {
   this.remaining = this.totalPrice - this.deposite;
 
-  if (this.isNew) {
+  if (!this.bookingNumber) {
     this.bookingNumber = `BK-${Math.floor(100000 + Math.random() * 900000)}`;
   }
-
 });
 
 const Booking = model<IBooking>("Booking", bookingSchema);

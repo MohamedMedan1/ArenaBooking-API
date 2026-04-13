@@ -1,0 +1,142 @@
+doctype html
+html(lang="en")
+  head
+    meta(http-equiv="Content-Type", content="text/html; charset=UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Booking Confirmed ✅
+    style.
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #0a0a0a; /* Darkest Background */
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      }
+      .wrapper {
+        width: 100%;
+        padding: 40px 0;
+      }
+      .main-container {
+        max-width: 550px;
+        background-color: #141414; /* Dark Surface */
+        margin: 0 auto;
+        border-radius: 30px;
+        overflow: hidden;
+        border: 1px solid #222222;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      }
+      .header-gradient {
+        background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+        padding: 50px 20px;
+        text-align: center;
+      }
+      .header-gradient h1 {
+        margin: 0;
+        color: #ffffff;
+        font-size: 24px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+      }
+      .content {
+        padding: 40px;
+        color: #ffffff;
+      }
+      .content h2 {
+        margin: 0 0 10px 0;
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: -1px;
+      }
+      .welcome-text {
+        color: #888888;
+        font-size: 16px;
+        margin-bottom: 30px;
+      }
+      .booking-card {
+        background: #1c1c1c; /* Glassmorphism start */
+        border: 1px solid #333333;
+        border-radius: 24px;
+        padding: 30px;
+        margin-bottom: 30px;
+      }
+      .detail-item {
+        margin-bottom: 20px;
+      }
+      .detail-item:last-child {
+        margin-bottom: 0;
+      }
+      .detail-label {
+        color: #555555;
+        text-transform: uppercase;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 2px;
+        margin-bottom: 4px;
+      }
+      .detail-value {
+        color: #ffffff;
+        font-size: 18px;
+        font-weight: 600;
+      }
+      .neon-text {
+        color: #28a745;
+        text-shadow: 0 0 10px rgba(40, 167, 69, 0.3);
+      }
+      .divider {
+        height: 1px;
+        background: #333333;
+        margin: 15px 0;
+      }
+      .footer {
+        padding: 30px;
+        text-align: center;
+        background-color: #0f0f0f;
+        border-top: 1px solid #222222;
+      }
+      .footer p {
+        color: #444444;
+        font-size: 11px;
+        margin: 5px 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+  body
+    table.wrapper(width="100%", border="0", cellpadding="0", cellspacing="0")
+      tr
+        td(align="center")
+          table.main-container(border="0", cellpadding="0", cellspacing="0")
+            //- Header
+            tr
+              td.header-gradient
+                h1 Confirmed
+            
+            //- Body
+            tr
+              td.content
+                h2 Hi #{firstName},
+                p.welcome-text Your arena spot is locked in. Ready for action?
+
+                div.booking-card
+                  div.detail-item
+                    div.detail-label 📅 Scheduled Date
+                    div.detail-value #{bookingDate}
+                  
+                  div.divider
+
+                  div.detail-item
+                    div.detail-label ⏰ Time Slot
+                    div.detail-value #{startTime} - #{endTime} 
+                      span(style="color:#555; font-size:14px; margin-left:5px;") (#{duration}h)
+                  
+                  div.divider
+
+                  div.detail-item
+                    div.detail-label 💰 Due at Arena
+                    div.detail-value.neon-text #{remaining} EGP
+
+            //- Footer
+            tr
+              td.footer
+                p © 2026 ArenaBooking System
+                p HIGH PERFORMANCE RESERVATIONS

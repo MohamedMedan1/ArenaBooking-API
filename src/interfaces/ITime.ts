@@ -1,4 +1,6 @@
-export interface ITime {
+import { Document } from "mongoose";
+
+export interface ITime extends Document {
   startTime: string;
   endTime: string;
   duration: number;
