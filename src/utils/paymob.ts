@@ -57,8 +57,6 @@ export const createPaymentIntention = async (
 
   const data = await response.json();
 
-  console.log(data);
-
   if (!response.ok) {
     console.error("Paymob Detailed Error:", data);
     throw new Error(`Paymob Error: ${data.message || response.statusText}`);

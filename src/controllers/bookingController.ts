@@ -1,116 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 import catchAsync from "../utils/catchAsync";
-import { Field } from "../models/fieldModel";
 import { AppError } from "../utils/appError";
 import { Booking } from "../models/bookingModel";
 import { Email } from "../utils/email";
 import { createPaymentIntention } from "../utils/paymob";
-
-// const createNewBooking = catchAsync(
-//   async (req: Request, res: Response, next: NextFunction) => {
-//     const session = await mongoose.startSession();
-
-//     try {
-//       session.startTransaction();
-
-//       const { field: fieldId } = req.body;
-
-//       const filter = {
-//         _id: fieldId as string,
-//         timeSlots: {
-//           $elemMatch: {
-//             date: new Date(req.body.bookingDate),
-//             times: {
-//               $elemMatch: {
-//                 startTime: req.body.startTime,
-//                 endTime: req.body.endTime,
-//                 isBooked: false,
-//               },
-//             },
-//           },
-//         },
-//       };
-
-//       const field = await Field.findOne(filter).session(session);
-
-//       if (!field) {
-//         return next(
-//           new AppError(
-//             "There is no field with that Id and with that info",
-//             404,
-//           ),
-//         );
-//       }
-
-//       const daySlot = field.timeSlots.find(
-//         (slot) =>
-//           slot.date.toISOString() ===
-//           new Date(req.body.bookingDate).toISOString(),
-//       );
-
-//       const timeSlot = daySlot?.times.find(
-//         (t) =>
-//           t.startTime === req.body.startTime && t.endTime === req.body.endTime,
-//       );
-
-//       if (timeSlot) {
-//         timeSlot.isBooked = true;
-
-//         req.body.nightCost = timeSlot.nightCost;
-//         req.body.duration = timeSlot.duration;
-//         req.body.totalPrice =
-//           field.pricePerHour * timeSlot.duration + timeSlot.nightCost;
-//       }
-
-//       field.markModified("timeSlots");
-//       await field.save({ session });
-
-//       const bookingInfo = {
-//         ...req.body,
-//         totalPrice: field.pricePerHour * req.body.duration + req.body.nightCost,
-//         deposite: req.body.deposite,
-//       };
-
-//       const paymentIntention = await createPaymentIntention(
-//         bookingInfo,
-//         req.user,
-//       );
-
-//       const newBooking = await Booking.create([req.body], { session });
-//       const bookingData = newBooking[0]!.toObject();
-//       const formattedData = {
-//         ...bookingData,
-//         bookingDate: new Date(bookingData.bookingDate).toLocaleDateString(
-//           "en-GB",
-//           {
-//             weekday: "long",
-//             year: "numeric",
-//             month: "long",
-//             day: "numeric",
-//           },
-//         ),
-//       };
-//       new Email({
-//         email: req.user!.email,
-//         name: req.user!.name,
-//       }).sendBookingSuccess(formattedData);
-
-//       res.status(201).json({
-//         status: "success",
-//         paymentUrl: `https://accept.paymob.com/unifiedcheckout/?publicKey=${process.env.PAYMOB_PUBLIC_KEY}&clientToken=${paymentIntention.client_token}`,
-//         data: newBooking,
-//       });
-
-//       await session.commitTransaction();
-//     } catch (error) {
-//       await session.abortTransaction();
-//       return next(error);
-//     } finally {
-//       session.endSession();
-//     }
-//   },
-// );
+import { processFieldSlot } from "../services/fieldService";
 
 const createNewBooking = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -119,59 +14,25 @@ const createNewBooking = catchAsync(
     try {
       session.startTransaction();
 
-      const { field: fieldId } = req.body;
-      const filter = {
-        _id: fieldId as string,
-        timeSlots: {
-          $elemMatch: {
-            date: new Date(req.body.bookingDate),
-            times: {
-              $elemMatch: {
-                startTime: req.body.startTime,
-                endTime: req.body.endTime,
-                isBooked: false,
-              },
-            },
-          },
-        },
-      };
-
-      const field = await Field.findOne(filter).session(session);
-
-      if (!field) {
-        return next(
-          new AppError(
-            "There is no field with that Id and with that info",
-            404,
-          ),
-        );
-      }
-
-      const daySlot = field.timeSlots.find(
-        (slot) =>
-          slot.date.toISOString() ===
-          new Date(req.body.bookingDate).toISOString(),
+      const result = await processFieldSlot(
+        req.body.field,
+        req.body.bookingDate,
+        req.body.startTime,
+        req.body.endTime,
+        session,
       );
 
-      const timeSlot = daySlot?.times.find(
-        (t) =>
-          t.startTime === req.body.startTime && t.endTime === req.body.endTime,
-      );
+      if (!result)
+        return next(new AppError("Field not found or slot taken", 404));
 
-      if (timeSlot) {
-        timeSlot.isBooked = true;
-        req.body.nightCost = timeSlot.nightCost;
-        req.body.duration = timeSlot.duration;
-        req.body.totalPrice =
-          field.pricePerHour * timeSlot.duration + timeSlot.nightCost;
-      }
+      const { field, calculatedData } = result;
 
-      // field.markModified("timeSlots");
-      // await field.save({ session });
+      req.body.totalPrice = calculatedData.totalPrice;
+      req.body.duration = calculatedData.duration;
 
       const bookingInfo = {
         ...req.body,
-        totalPrice: field.pricePerHour * req.body.duration + req.body.nightCost,
+        totalPrice: field.pricePerHour * calculatedData.duration + calculatedData.nightCost,
         deposite: req.body.deposite,
       };
 
@@ -182,7 +43,7 @@ const createNewBooking = catchAsync(
       await session.commitTransaction();
       res.status(200).json({
         status: "success",
-        paymentUrl: `https://accept.paymob.com/unifiedcheckout/?publicKey=${process.env.PAYMOB_PUBLIC_KEY}&clientToken=${paymentIntention.client_secret}`,
+        paymentUrl: `https://accept.paymob.com/unifiedcheckout/?publicKey=${process.env.PAYMOB_PUBLIC_KEY}&clientSecret=${paymentIntention.client_secret}`,
       });
     } catch (error) {
       await session.abortTransaction();
@@ -197,8 +58,21 @@ const paymobWebhook = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { obj } = req.body;
 
-    if (obj.success === true) {
-      const { extras } = obj.payment_methods[0].intention;
+    console.log(obj);
+    if (obj && obj.success === true) {
+      const claims = obj.payment_key_claims;
+      const extras = claims?.extra;
+      const billingData = claims?.billing_data;
+
+      if (!extras) {
+        console.error("❌ Extras not found in payment_key_claims");
+        return res
+          .status(200)
+          .json({ status: "success", message: "No extras" });
+      }
+
+      const amountPaid =
+        (claims?.amount_cents || obj.order?.amount_cents || 0) / 100;
 
       const newBooking = await Booking.create({
         field: extras.fieldId,
@@ -207,7 +81,7 @@ const paymobWebhook = catchAsync(
         startTime: extras.startTime,
         endTime: extras.endTime,
         totalPrice: extras.totalPrice,
-        deposite: Math.round(obj.amount / 100),
+        deposite: Math.round(amountPaid),
         duration: extras.duration,
       });
 
@@ -225,18 +99,23 @@ const paymobWebhook = catchAsync(
         ),
       };
 
-      new Email({
-        email: obj.billing_data.email,
-        name: obj.billing_data.first_name,
-      }).sendBookingSuccess(formattedData);
+      if (billingData?.email) {
+        try {
+          await new Email({
+            email: billingData.email,
+            name: billingData.first_name,
+          }).sendBookingSuccess(formattedData);
+          console.log("Email sent successfully to:", billingData.email);
+        } catch (emailErr) {
+          console.error("Email sending failed:", emailErr);
+        }
+      }
 
-      return res
-        .status(200)
-        .json({
-          status: "success",
-          data: newBooking,
-          message: "Booking Created",
-        });
+      return res.status(200).json({
+        status: "success",
+        data: newBooking,
+        message: "Booking Created",
+      });
     }
 
     res.status(200).json({ status: "success" });

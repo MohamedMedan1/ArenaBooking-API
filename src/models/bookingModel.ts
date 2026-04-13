@@ -52,10 +52,10 @@ const bookingSchema = new Schema<IBooking>(
     },
     status: {
       type: String,
-      default: "pending",
+      default: "confirmed",
       enum: {
-        values: ["pending", "completed", "canceled"],
-        message: "status can be only pending | completed | canceled",
+        values: ["confirmed", "completed", "canceled"],
+        message: "status can be only confirmed | completed | canceled",
       },
     },
   },

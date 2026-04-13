@@ -1,7 +1,6 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 import pug from "pug";
 import path from "path";
-
 
 export class Email {
   private to: string;
@@ -9,14 +8,15 @@ export class Email {
   private from: string;
 
   constructor(user: { email: string; name: string }) {
+    console.log(user.email, user.name);
     this.to = user.email;
-    this.firstName = user.name.split(' ')[0];
+    this.firstName = user.name;
     this.from = `Field Booking <${process.env.EMAIL_USER}>`;
   }
 
   private newTransport() {
     return nodemailer.createTransport({
-      service: 'Gmail',
+      service: "Gmail",
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -24,14 +24,19 @@ export class Email {
     });
   }
 
-  async send(subject: string, text: string, templateData: any,template:string) {
+  async send(
+    subject: string,
+    text: string,
+    templateData: any,
+    template: string,
+  ) {
     const templatePath = path.join(__dirname, `../templates/${template}.pug`);
 
     const html = pug.renderFile(templatePath, {
       firstName: this.firstName,
       subject,
-      ...templateData
-    })
+      ...templateData,
+    });
 
     const mailOptions = {
       from: this.from,
@@ -45,6 +50,11 @@ export class Email {
   }
 
   async sendBookingSuccess(bookingData: any) {
-    await this.send('bookingConfirm', 'Reservation Confirmed ✅',bookingData,"bookingConfirm");
+    await this.send(
+      "bookingConfirm",
+      "Reservation Confirmed ✅",
+      bookingData,
+      "bookingConfirm",
+    );
   }
 }
