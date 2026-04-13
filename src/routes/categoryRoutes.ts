@@ -17,19 +17,24 @@ import Category from "../models/categoryModel";
 
 const router = express.Router();
 
-// Enable Authentication and Azuthorization
+// All Users can access this routes 
+router.get("/", getAllCategories);
+router.get("/:id",getCategory)
+
+// Enable Authentication for all coming routes 
 router.use(protect(Admin));
+
+// Enable Authorization for all coming routes 
+router.use(restrictTo("manager", "assistant"));
+
+router.patch("/:id",uploadImage,removeImage(Category),resizeImage,uploadImageToCloud("categories"),normalizeCategoryName,updateCategory)
+
+// Enable more specific Authorization for all coming routes
 router.use(restrictTo("manager"));
 
-router
-  .route("/")
-  .get(getAllCategories)
-  .post(uploadImage,resizeImage,uploadImageToCloud("categories"),normalizeCategoryName, createNewCategory);
+router.route("/")
+  .post(uploadImage, resizeImage, uploadImageToCloud("categories"), normalizeCategoryName, createNewCategory);
 
-router
-  .route("/:id")
-  .get(getCategory)
-  .patch(uploadImage,removeImage(Category),resizeImage,uploadImageToCloud("categories"),normalizeCategoryName,updateCategory)//User Upload New Image => Remove Old One from Cloud => Add New One Into Cloud => Update Image URL AND ID
-  .delete(removeImage(Category),deleteCategory);
+router.delete("/:id",removeImage(Category),deleteCategory);
 
 export default router;

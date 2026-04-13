@@ -2,10 +2,17 @@ import { Request, Response, NextFunction } from "express";
 import catchAsync from "../utils/catchAsync";
 import Category from "../models/categoryModel";
 import { AppError } from "../utils/appError";
+import { APIFeatures } from "../utils/apiFeatures";
 
 const getAllCategories = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const categories = await Category.find();
+    const features = new APIFeatures(Category.find(), req.query)
+      .filter()
+      .sort()
+      .fields()
+      .paginate();
+
+    const categories = await features.query;
 
     res.status(200).json({
       status: "success",
@@ -32,7 +39,7 @@ const getCategory = catchAsync(
     const category = await Category.findById(id);
 
     if (!category) {
-      return next(new AppError("There is no category with that ID",404));
+      return next(new AppError("There is no category with that ID", 404));
     }
 
     res.status(200).json({
@@ -51,7 +58,7 @@ const updateCategory = catchAsync(
     });
 
     if (!category) {
-      return next(new AppError("There is no category with that ID",404));
+      return next(new AppError("There is no category with that ID", 404));
     }
 
     res.status(200).json({
@@ -73,4 +80,10 @@ const deleteCategory = catchAsync(
   },
 );
 
-export { getAllCategories, createNewCategory, getCategory,updateCategory,deleteCategory };
+export {
+  getAllCategories,
+  createNewCategory,
+  getCategory,
+  updateCategory,
+  deleteCategory,
+};

@@ -1,16 +1,25 @@
 import { Request, Response, NextFunction } from "express";
 import catchAsync from "../utils/catchAsync";
 import { Field } from "../models/fieldModel";
+import { APIFeatures } from "../utils/apiFeatures";
 
-const getAllFields = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const fields = await Field.find();
-  
+const getAllFields = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const features = new APIFeatures(Field.find(), req.query)
+      .filter()
+      .sort()
+      .fields()
+      .paginate();
+
+    const fields = await features.query;
+
     res.status(200).json({
       status: "success",
       result: fields.length,
       data: fields,
     });
-});
+  },
+);
 
 const createNewField = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -35,4 +44,4 @@ const deleteField = catchAsync(
   },
 );
 
-export { getAllFields,createNewField,deleteField };
+export { getAllFields, createNewField, deleteField };

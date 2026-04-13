@@ -8,7 +8,6 @@ export class Email {
   private from: string;
 
   constructor(user: { email: string; name: string }) {
-    console.log(user.email, user.name);
     this.to = user.email;
     this.firstName = user.name;
     this.from = `Field Booking <${process.env.EMAIL_USER}>`;

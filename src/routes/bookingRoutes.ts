@@ -12,7 +12,9 @@ const router = express.Router({ mergeParams: true });
 
 router.post("/webhook", paymobWebhook);
 
+// Enable Authentication for all coming routes 
 router.use(protect(Client));
+
 router.post(
   "/",
   insertFieldAndClientIds,
