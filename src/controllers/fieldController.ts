@@ -21,6 +21,22 @@ const getAllFields = catchAsync(
   },
 );
 
+
+const getField = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+
+    const feature = new APIFeatures(Field.findById(id), req.query).fields();
+
+    const field = await feature.query;
+
+    res.status(200).json({
+      status: "success",
+      data: field,
+    });
+  },
+);
+
 const createNewField = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const newField = await Field.create(req.body);
@@ -44,4 +60,9 @@ const deleteField = catchAsync(
   },
 );
 
-export { getAllFields, createNewField, deleteField };
+export {
+  getAllFields,
+  getField,
+  createNewField,
+  deleteField,
+};

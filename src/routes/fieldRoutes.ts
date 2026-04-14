@@ -3,6 +3,7 @@ import {
   createNewField,
   deleteField,
   getAllFields,
+  getField,
 } from "../controllers/fieldController";
 import { uploadImage } from "../middlewares/uploadImage";
 import { resizeImage } from "../middlewares/resizeImage";
@@ -17,8 +18,9 @@ import Client from "../models/clientModel";
 
 const router = express.Router();
 
-
+// Main Routes
 router.get("/", getAllFields);
+router.get("/:id", getField);
 
 // ======== Nested Route  ========
 router.use("/:fieldId/bookings",protect(Client), bookingRouter);

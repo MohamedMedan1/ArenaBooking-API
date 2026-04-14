@@ -1,12 +1,24 @@
 import express from "express";
-import { login, register } from "../controllers/authController";
+import { changePassword, login, protect, register } from "../controllers/authController";
 import Client from "../models/clientModel";
+import { getMe, updateMe } from "../controllers/clientController";
+import clientBookingRouter from "./clientBookingRoutes";
 
 const router = express.Router();
 
 // =====  Authentication Routes =====
-router.post("/login",login(Client));
+router.post("/login", login(Client));
 router.post("/register", register(Client));
 
+// Enable Authentication 
+router.use(protect(Client));
 
+router.post("/change-password", changePassword(Client));
+
+router.route("/me")
+  .get(getMe)
+  .patch(updateMe);
+
+router.use("/me/bookings", clientBookingRouter);
+  
 export default router;

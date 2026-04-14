@@ -6,6 +6,7 @@ import { Booking } from "../models/bookingModel";
 import { Email } from "../utils/email";
 import { createPaymentIntention } from "../utils/paymob";
 import { processFieldSlot } from "../services/fieldService";
+import { formatDate } from "../utils/formatDate";
 
 const createNewBooking = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -32,7 +33,9 @@ const createNewBooking = catchAsync(
 
       const bookingInfo = {
         ...req.body,
-        totalPrice: field.pricePerHour * calculatedData.duration + calculatedData.nightCost,
+        totalPrice:
+          field.pricePerHour * calculatedData.duration +
+          calculatedData.nightCost,
         deposite: req.body.deposite,
       };
 
@@ -88,15 +91,7 @@ const paymobWebhook = catchAsync(
       const bookingData = newBooking.toObject();
       const formattedData = {
         ...bookingData,
-        bookingDate: new Date(bookingData.bookingDate).toLocaleDateString(
-          "en-GB",
-          {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          },
-        ),
+        bookingDate: formatDate(bookingData.bookingDate),
       };
 
       if (billingData?.email) {

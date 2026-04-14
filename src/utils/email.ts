@@ -56,4 +56,22 @@ export class Email {
       "bookingConfirm",
     );
   }
+
+  async sendEmailUpdateNotification(userData: any) {
+    await this.send(
+      "Security Alert: Your email address was updated",
+      "Email Address Updated ✅",
+      userData,
+      "emailUpdate",
+    );
+  }
+
+  async sendPasswordChangedNotification(userData: any) {
+    await this.send(
+      "Security Alert: Your password was changed 🔐",
+      "Password Change Notification",
+      userData,
+      "passwordChanged",
+    );
+  }
 }

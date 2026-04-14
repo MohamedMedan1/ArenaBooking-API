@@ -2,6 +2,8 @@ import { Schema, model } from "mongoose";
 import { IUser } from "../interfaces/IUser";
 import validator from "validator";
 import bcrypt from "bcrypt";
+import { Email } from "../utils/email";
+import { formatDate } from "../utils/formatDate";
 
 // "User" may be ("Client") or ("Admin")
 const options = { discriminatorKey: "type", collection: "users" };
@@ -66,6 +68,27 @@ userSchema.pre<IUser>("save", async function () {
 
   this.password = await bcrypt.hash(this.password, 12);
   this.passwordConfirm = undefined;
+  this.passwordChangedAt = new Date(Date.now() - 1000);
+});
+
+userSchema.post<IUser>("save", async function (doc, next) {
+  if (this.isModified("password") && !this.isNew) {
+    try {
+      const firstName = doc.name.split(" ")[0];
+      const changeDate = formatDate(new Date());
+      new Email({
+        email: doc.email,
+        name: firstName!,
+      }).sendPasswordChangedNotification({
+        firstName,
+        changeDate
+      });
+    } catch (err) {
+      console.error("Email error: ", err);
+    }
+  }
+
+  next();
 });
 
 // Instance Method for password correctness checking
@@ -76,15 +99,18 @@ userSchema.methods.isCorrectPassword = async function (
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-
 // Instance Method for password changing checking
-userSchema.methods.isPasswordChangedAfterLogin = function (jwtTimeStamp:number):boolean {  
+userSchema.methods.isPasswordChangedAfterLogin = function (
+  jwtTimeStamp: number,
+): boolean {
   if (this.passwordChangedAt) {
-    const changingPasswordTimeStamp:number = Math.floor(new Date(this.passwordChangedAt).getTime() / 1000);
+    const changingPasswordTimeStamp: number = Math.floor(
+      new Date(this.passwordChangedAt).getTime() / 1000,
+    );
     return changingPasswordTimeStamp > jwtTimeStamp;
   }
   return false;
-}
+};
 
 const User = model<IUser>("User", userSchema);
 

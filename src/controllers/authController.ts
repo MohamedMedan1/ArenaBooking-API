@@ -92,4 +92,29 @@ const restrictTo = (...roles: string[]) => {
   };
 };
 
-export { register, login, protect, restrictTo };
+const changePassword = (Model:MongooseModel<IUser>) =>
+  catchAsync(async (req, res, next) => {
+    const { currentPassword, newPassword, newPasswordConfirm } = req.body;
+
+    if (!currentPassword || !newPassword || !newPasswordConfirm) {
+      return next(new AppError("Please provide your currentPassword , newPassword and newPasswordConfirm", 400));
+    }
+
+    const user = await Model.findById(req.user!._id);
+
+    if (!user) {
+      return next(new AppError("There is no user with that Id", 404));
+    }
+
+    if (!(await user.isCorrectPassword(currentPassword))) {
+      return next(new AppError("Your current password is in correct", 400));
+    }
+
+    user.password = newPassword;
+    user.passwordConfirm = newPasswordConfirm;
+    await user.save();
+
+    generateJWTAndSendResponse(res,user,200);
+  });
+
+export { register, login, protect, restrictTo,changePassword };
