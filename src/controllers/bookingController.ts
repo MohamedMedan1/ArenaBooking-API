@@ -16,6 +16,7 @@ const createNewBooking = catchAsync(
       session.startTransaction();
 
       const result = await processFieldSlot(
+        "lockField",
         req.body.field,
         req.body.bookingDate,
         req.body.startTime,

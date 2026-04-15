@@ -2,12 +2,13 @@ import { ClientSession } from "mongoose";
 import { Field } from "../models/fieldModel";
 
 export const processFieldSlot = async (
+  processJob: string,
   fieldId: string,
   bookingDateStr: string,
   startTime: string,
   endTime: string,
   session: ClientSession,
-) => {
+):Promise<any> => {
   const bookingDate = new Date(bookingDateStr);
 
   const filter = {
@@ -19,7 +20,7 @@ export const processFieldSlot = async (
           $elemMatch: {
             startTime,
             endTime,
-            isBooked: false,
+            isBooked: processJob === "lockField" ? false : true,
           },
         },
       },
@@ -38,18 +39,26 @@ export const processFieldSlot = async (
     (t) => t.startTime === startTime && t.endTime === endTime,
   );
 
+  let calculatedData = {};
+
   if (timeSlot) {
-    timeSlot.isBooked = true;  
-    const calculatedData = {
-      nightCost: timeSlot.nightCost,
-      duration: timeSlot.duration,
-      totalPrice: field.pricePerHour * timeSlot.duration + timeSlot.nightCost,
-    };
+    if (processJob === "lockField") {
+      timeSlot.isBooked = true;
+      calculatedData = {
+        nightCost: timeSlot.nightCost,
+        duration: timeSlot.duration,
+        totalPrice: field.pricePerHour * timeSlot.duration + timeSlot.nightCost,
+      };
+    } else if (processJob === "unLockField") {
+      timeSlot.isBooked = false;
+    }
 
     field.markModified("timeSlots");
     await field.save({ session });
 
-    return { field, calculatedData };
+    if (Object.keys(calculatedData).length) {
+      return { field, calculatedData };
+    } else return field;
   }
 
   return null;

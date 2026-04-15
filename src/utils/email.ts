@@ -74,4 +74,13 @@ export class Email {
       "passwordChanged",
     );
   }
+  
+  async sendBookingCancelNotification(bookingData: any) {
+    await this.send(
+      "Booking Cancellation - Action Required 🏟️",
+      `Your booking for ${bookingData.fieldName} has been cancelled. Please contact the owner for your refund.`,
+      bookingData,
+      "bookingCancelled",
+    );
+  }
 }

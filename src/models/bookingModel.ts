@@ -1,5 +1,10 @@
 import { Schema, model } from "mongoose";
 import { IBooking } from "../interfaces/IBooking";
+import { Email } from "../utils/email";
+import Client from "./clientModel";
+import { AppError } from "../utils/appError";
+import { formatDate } from "../utils/formatDate";
+import { Field } from "./fieldModel";
 
 const bookingSchema = new Schema<IBooking>(
   {
@@ -67,6 +72,34 @@ bookingSchema.pre<IBooking>("save", function () {
 
   if (!this.bookingNumber) {
     this.bookingNumber = `BK-${Math.floor(100000 + Math.random() * 900000)}`;
+  }
+});
+
+bookingSchema.post<IBooking>("save", async function (doc) {
+  if (doc.status !== "canceled") return;
+
+  try {
+    const user = await Client.findById(doc.client);
+    if (!user) return;
+
+    const field = await Field.findById(doc.field);
+    if (!field) return;
+
+    const firstName = user.name.split(" ")[0];
+    const formattedDate = formatDate(doc.bookingDate);
+
+    await new Email({
+      email: user.email,
+      name: firstName!,
+    }).sendBookingCancelNotification({
+      firstName,
+      fieldName: field.name,
+      date: formattedDate,
+      bookingNumber: doc.bookingNumber,
+      ownerPhone: process.env.OWNER_PHONE_NUMBER,
+    });
+  } catch (err) {
+    console.error("Email Error in Booking Post-Save Hook: ", err);
   }
 });
 

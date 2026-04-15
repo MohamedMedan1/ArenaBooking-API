@@ -1,0 +1,160 @@
+doctype html
+html(lang="en")
+  head
+    meta(http-equiv="Content-Type", content="text/html; charset=UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Booking Cancelled 🏟️
+    style.
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #0a0a0a;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      }
+      .wrapper {
+        width: 100%;
+        padding: 40px 0;
+      }
+      .main-container {
+        max-width: 550px;
+        background-color: #141414;
+        margin: 0 auto;
+        border-radius: 30px;
+        overflow: hidden;
+        border: 1px solid #222222;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      }
+      .header-gradient {
+        background: linear-gradient(135deg, #ff8c00 0%, #e65100 100%);
+        padding: 50px 20px;
+        text-align: center;
+      }
+      .header-gradient h1 {
+        margin: 0;
+        color: #ffffff;
+        font-size: 24px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+      }
+      .content {
+        padding: 40px;
+        color: #ffffff;
+      }
+      .content h2 {
+        margin: 0 0 10px 0;
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: -1px;
+      }
+      .security-text {
+        color: #888888;
+        font-size: 16px;
+        margin-bottom: 30px;
+        line-height: 1.6;
+      }
+      .info-card {
+        background: #1c1c1c;
+        border: 1px solid #333333;
+        border-radius: 24px;
+        padding: 30px;
+        margin-bottom: 30px;
+      }
+      .detail-item {
+        margin-bottom: 20px;
+      }
+      .detail-item:last-child {
+        margin-bottom: 0;
+      }
+      .detail-label {
+        color: #555555;
+        text-transform: uppercase;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 2px;
+        margin-bottom: 4px;
+      }
+      .detail-value {
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: 600;
+      }
+      .booking-number {
+        color: #ff4d4d;
+        font-family: 'Courier New', monospace;
+        letter-spacing: 1px;
+      }
+      .whatsapp-btn {
+        display: block;
+        background: #25D366;
+        color: #ffffff !important;
+        text-decoration: none;
+        text-align: center;
+        padding: 18px;
+        border-radius: 15px;
+        font-weight: 700;
+        margin-top: 20px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 10px 20px rgba(37, 211, 102, 0.2);
+      }
+      .divider {
+        height: 1px;
+        background: #333333;
+        margin: 15px 0;
+      }
+      .footer {
+        padding: 30px;
+        text-align: center;
+        background-color: #0f0f0f;
+        border-top: 1px solid #222222;
+      }
+      .footer p {
+        color: #444444;
+        font-size: 11px;
+        margin: 5px 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+  body
+    table.wrapper(width="100%", border="0", cellpadding="0", cellspacing="0")
+      tr
+        td(align="center")
+          table.main-container(border="0", cellpadding="0", cellspacing="0") 
+            tr
+              td.header-gradient
+                h1 Booking Cancelled
+            
+            //- Body
+            tr
+              td.content
+                h2 Hi #{firstName},
+                p.security-text Your reservation has been successfully cancelled. Below are the details for your reference.
+
+                div.info-card
+                  div.detail-item
+                    div.detail-label 🏟️ Field Name
+                    div.detail-value #{fieldName}
+                  
+                  div.divider
+
+                  div.detail-item
+                    div.detail-label 📅 Match Date
+                    div.detail-value #{date}
+
+                  div.divider
+
+                  div.detail-item
+                    div.detail-label 🎫 Booking Number
+                    div.detail-value.booking-number #{bookingNumber}
+
+                p.security-text(style="font-size: 14px;") To receive your deposit refund, please contact the field owner via WhatsApp and provide them with the booking number above.
+
+                a.whatsapp-btn(href=`https://wa.me/${ownerPhone}?text=Hello, I would like a refund for my cancelled booking: ${bookingNumber}`, target="_blank") 💬 Message Owner on WhatsApp
+
+            //- Footer
+            tr
+              td.footer
+                p © 2026 ArenaBooking System
+                p SECURE ACCESS • HIGH PERFORMANCE RESERVATIONS
