@@ -6,7 +6,8 @@ import {
 import { protect } from "../controllers/authController";
 import Client from "../models/clientModel";
 import { insertFieldAndClientIds } from "../middlewares/insertFieldAndClientIds";
-import { checkFieldAvailability } from "../middlewares/checkFieldAvailability";
+import { checkSlotAvailability } from "../middlewares/checkSlotAvailability";
+import { checkFieldIsActive } from "../middlewares/checkFieldIsActive";
 
 const router = express.Router({ mergeParams: true });
 
@@ -18,7 +19,8 @@ router.use(protect(Client));
 router.post(
   "/",
   insertFieldAndClientIds,
-  checkFieldAvailability,
+  checkFieldIsActive,
+  checkSlotAvailability,
   createNewBooking,
 );
 
