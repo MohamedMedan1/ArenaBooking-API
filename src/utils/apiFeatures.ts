@@ -1,5 +1,6 @@
 import { Query } from 'mongoose';
 import { filterFields } from './filterFields';
+import { excludeFields } from './excludeFields';
 
 export class APIFeatures{
   public query: Query<any[],any>;
@@ -11,7 +12,7 @@ export class APIFeatures{
   }
 
   filter() {
-    let filteredQueryStr = filterFields(this.queryString, 'sort', 'limit', 'page', 'fields');
+    let filteredQueryStr = excludeFields(this.queryString, ["page", "sort", "limit", "fields"]);
     
     filteredQueryStr = JSON.stringify(filteredQueryStr).replace(/\b(gt|gte|lt|lte)\b/g, match => `$${match}`);
     this.query = this.query.find(JSON.parse(filteredQueryStr));

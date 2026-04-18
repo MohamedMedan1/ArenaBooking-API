@@ -13,7 +13,7 @@ router.post("/register", register(Client));
 // Enable Authentication 
 router.use(protect(Client));
 
-router.post("/change-password", changePassword(Client));
+router.patch("/change-password", changePassword(Client));
 
 router.route("/me")
   .get(getMe)

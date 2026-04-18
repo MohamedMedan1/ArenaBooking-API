@@ -5,6 +5,7 @@ import clientRouter from "./routes/clientRoutes";
 import categoryRouter from "./routes/categoryRoutes";
 import fieldRouter from "./routes/fieldRoutes";
 import bookingRouter from "./routes/bookingRoutes";
+import statsRouter from "./routes/statsRoutes";
 import { globalErrorHandler } from "./controllers/errorController";
 import rateLimit from "express-rate-limit";
 import sanitizer from 'perfect-express-sanitizer';
@@ -50,6 +51,7 @@ app.use("/api/v1/clients", clientRouter);
 app.use("/api/v1/categories", categoryRouter);
 app.use("/api/v1/fields", fieldRouter);
 app.use("/api/v1/bookings", bookingRouter);
+app.use("/api/v1/stats", statsRouter);
 
 // Handle Error when user call non exist endPoint
 app.all(/.*/, (req: Request, res: Response, next: NextFunction) => {

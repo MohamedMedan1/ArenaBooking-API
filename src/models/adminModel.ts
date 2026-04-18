@@ -1,7 +1,6 @@
 import { Schema } from "mongoose";
 import User from "./userModel";
 import { IAdmin } from "../interfaces/IAdmin";
-
 const adminSchema = new Schema<IAdmin>({
   role: {
     type: String,
@@ -25,7 +24,6 @@ const adminSchema = new Schema<IAdmin>({
     min: [18, "Your age must be equal or older than 18"],
   },
 });
-
 const Admin = User.discriminator<IAdmin>("Admin", adminSchema);
 
 export default Admin;

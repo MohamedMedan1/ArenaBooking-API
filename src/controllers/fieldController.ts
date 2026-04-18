@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import catchAsync from "../utils/catchAsync";
 import { Field } from "../models/fieldModel";
 import { APIFeatures } from "../utils/apiFeatures";
+import { AppError } from "../utils/appError";
 
 const getAllFields = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -48,6 +49,25 @@ const createNewField = catchAsync(
   },
 );
 
+const updateField = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    const field = await Field.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!field) {
+      return next(new AppError("There is no field with that ID", 404));
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: field,
+    });
+  },
+);
+
 const deleteField = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req?.params;
@@ -64,5 +84,6 @@ export {
   getAllFields,
   getField,
   createNewField,
+  updateField,
   deleteField,
 };

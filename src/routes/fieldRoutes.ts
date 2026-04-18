@@ -4,6 +4,7 @@ import {
   deleteField,
   getAllFields,
   getField,
+  updateField,
 } from "../controllers/fieldController";
 import { uploadImage } from "../middlewares/uploadImage";
 import { resizeImage } from "../middlewares/resizeImage";
@@ -23,7 +24,7 @@ router.get("/", getAllFields);
 router.get("/:id", getField);
 
 // ======== Nested Route  ========
-router.use("/:fieldId/bookings",protect(Client), bookingRouter);
+router.use("/:fieldId/bookings", protect(Client), bookingRouter);
 
 // Enable Authentication for all coming routes
 router.use(protect(Admin));
@@ -40,6 +41,15 @@ router
     createNewField,
   );
 
-router.route("/:id").delete(removeImage(Field), deleteField);
+router
+  .route("/:id")
+  .patch(
+    uploadImage,
+    resizeImage,
+    uploadImageToCloud("fields"),
+    generateTimeSlots,
+    updateField,
+  )
+  .delete(removeImage(Field), deleteField);
 
 export default router;

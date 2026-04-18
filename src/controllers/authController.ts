@@ -50,7 +50,6 @@ const protect = (Model: MongooseModel<IUser>) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     // 1)- Catch Token
     const token = req.headers.authorization?.split(" ")[1];
-    console.log(token);
     if (!token) {
       return next(new AppError("You are not logged in! Please log in.", 401));
     }
@@ -100,11 +99,12 @@ const changePassword = (Model:MongooseModel<IUser>) =>
       return next(new AppError("Please provide your currentPassword , newPassword and newPasswordConfirm", 400));
     }
 
-    const user = await Model.findById(req.user!._id);
+    const user = await Model.findById(req.user!._id).select("+password");
 
     if (!user) {
       return next(new AppError("There is no user with that Id", 404));
     }
+
 
     if (!(await user.isCorrectPassword(currentPassword))) {
       return next(new AppError("Your current password is in correct", 400));

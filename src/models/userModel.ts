@@ -64,31 +64,60 @@ const userSchema = new Schema<IUser>(
 
 // Pre Document Middleware to hash password before save it!
 userSchema.pre<IUser>("save", async function () {
+  if (this.isModified("email") && !this.isNew) {
+    try {
+      const Model = this.constructor as any;
+      const existingUser = await Model.findById(this._id).select("email");
+      if (existingUser) (this as any).oldEmail = existingUser.email;
+    } catch (err) {
+      console.error("Error fetching old email:", err);
+    }
+  }
+
   if (!this.isModified("password")) return;
+
+  if (!this.isNew) {
+    (this as any)._passwordWasModified = true;
+  }
 
   this.password = await bcrypt.hash(this.password, 12);
   this.passwordConfirm = undefined;
   this.passwordChangedAt = new Date(Date.now() - 1000);
 });
 
-userSchema.post<IUser>("save", async function (doc, next) {
-  if (this.isModified("password") && !this.isNew) {
+userSchema.post<IUser>("save", async function (doc) {
+  if ((this as any)._passwordWasModified) {
     try {
       const firstName = doc.name.split(" ")[0];
       const changeDate = formatDate(new Date());
-      new Email({
+      await new Email({
         email: doc.email,
         name: firstName!,
       }).sendPasswordChangedNotification({
         firstName,
-        changeDate
+        changeDate,
       });
     } catch (err) {
       console.error("Email error: ", err);
     }
+  } else if ((this as any).oldEmail) {
+    const oldEmail = (this as any).oldEmail;
+    if (oldEmail && oldEmail !== doc.email) {
+      try {
+        const firstName = doc!.name.split(" ")[0];
+        await new Email({
+          email: doc!.email,
+          name: firstName!,
+        }).sendEmailUpdateNotification({
+          firstName,
+          oldEmail,
+          newEmail: doc.email,
+        });
+      } catch (err) {
+        console.error("Email error: ", err);
+      }
+    }
   }
-
-  next();
 });
 
 // Instance Method for password correctness checking
