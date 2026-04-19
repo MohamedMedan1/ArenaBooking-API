@@ -1,7 +1,7 @@
 import express from "express";
 import { protect, restrictTo } from "../controllers/authController";
 import Admin from "../models/adminModel";
-import { getDashboardInfo } from "../controllers/statsController";
+import { getAnalyticsInfo, getDashboardInfo } from "../controllers/statsController";
 
 const router = express.Router();
 
@@ -9,6 +9,6 @@ const router = express.Router();
 router.use(protect(Admin));
 
 router.get("/dashboard", getDashboardInfo);
-router.get("/analytics", restrictTo("manager"));
+router.get("/analytics", restrictTo("manager"),getAnalyticsInfo);
 
 export default router;
