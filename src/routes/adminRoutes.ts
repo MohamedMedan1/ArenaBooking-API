@@ -1,7 +1,7 @@
 import express from "express";
-import { changePassword, login, protect, register } from "../controllers/authController";
+import { changePassword, login, protect, register, restrictTo } from "../controllers/authController";
 import Admin from "../models/adminModel";
-import { getMe } from "../controllers/adminController";
+import { createNewAssistant, deleteAssistant, getAllAssistants, getMe } from "../controllers/adminController";
 import { updateMe } from "../controllers/adminController";
 
 const router = express.Router();
@@ -18,5 +18,13 @@ router.patch("/change-password", changePassword(Admin));
 router.route("/me")
   .get(getMe)
   .patch(updateMe);
+  
+router.use(restrictTo("manager"));
+
+router.route("/")
+  .get(getAllAssistants)
+  .post(createNewAssistant);
+
+router.delete("/:id",deleteAssistant);
 
 export default router;

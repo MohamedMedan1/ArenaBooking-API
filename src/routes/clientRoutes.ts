@@ -10,15 +10,14 @@ const router = express.Router();
 router.post("/login", login(Client));
 router.post("/register", register(Client));
 
-// Enable Authentication 
-router.use(protect(Client));
 
-router.patch("/change-password", changePassword(Client));
+router.patch("/change-password",protect(Client), changePassword(Client));
 
+router.use("/me", protect(Client)); 
 router.route("/me")
   .get(getMe)
   .patch(updateMe);
 
-router.use("/me/bookings", clientBookingRouter);
+router.use("/me/bookings", protect(Client),clientBookingRouter);
   
 export default router;

@@ -7,6 +7,37 @@ import { Email } from "../utils/email";
 import { createPaymentIntention } from "../utils/paymob";
 import { processFieldSlot } from "../services/fieldService";
 import { formatDate } from "../utils/formatDate";
+import { APIFeatures } from "../utils/apiFeatures";
+
+const getAllBookings = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const features = new APIFeatures(Booking.find(), req.query)
+      .filter()
+      .sort()
+      .fields()
+      .paginate();
+
+    const bookings = await features.query;
+
+    res.status(200).json({
+      status: "success",
+      result: bookings.length!,
+      data: bookings,
+    });
+  },
+);
+
+const getBooking = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    const booking = await Booking.findById(id);
+
+    res.status(200).json({
+      status: "success",
+      data: booking,
+    });
+  },
+);
 
 const createNewBooking = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -118,4 +149,60 @@ const paymobWebhook = catchAsync(
   },
 );
 
-export { createNewBooking, paymobWebhook };
+const cancelBookingByAdmin = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { bookingId } = req.params;
+    const session = await mongoose.startSession();
+    
+    try {
+      session.startTransaction();
+
+      const booking = await Booking.findById(bookingId).session(session);
+
+      if (!booking) {
+        await session.abortTransaction();
+        return next(new AppError("There is no booking with that Id", 404))
+      };
+
+      const { field, bookingDate, startTime, endTime } = booking;
+
+      await processFieldSlot("unLockField",String(field),String(bookingDate),startTime,endTime,session)
+
+      booking.status = "canceled";
+      await booking.save({session});
+      
+      await session.commitTransaction();
+      
+      res.status(200).json({
+        status: "success",
+        message: "Booking canceled and slot is now available."
+      });
+    } catch (error) {
+      await session.abortTransaction();
+    } finally {
+      session.endSession();
+    }
+  }
+);
+
+const markAsPaidByAdmin = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const {bookingId } = req.params;
+
+    const updatedBooking = await Booking.findByIdAndUpdate(bookingId, { isPaid: true,status: "confirmed" }, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedBooking) {
+      return next(new AppError("No booking found with that ID", 404));
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: updatedBooking,
+    })
+  }
+);
+
+export { getAllBookings, getBooking, createNewBooking, paymobWebhook,cancelBookingByAdmin,markAsPaidByAdmin };
