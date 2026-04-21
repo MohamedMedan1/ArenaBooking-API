@@ -174,7 +174,7 @@ const getDashboardInfo = catchAsync(
     res.status(200).json({
       status: "success",
       data: {
-        dashboardData,
+        ...dashboardData,
       },
     });
   },
@@ -435,7 +435,7 @@ const getAnalyticsInfo = catchAsync(
     res.status(200).json({
       status: "success",
       data: {
-        analyticsData,
+        ...analyticsData,
       },
     });
   },
