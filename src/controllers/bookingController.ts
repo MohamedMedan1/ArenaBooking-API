@@ -9,9 +9,10 @@ import { processFieldSlot } from "../services/fieldService";
 import { formatDate } from "../utils/formatDate";
 import { getAllDocuments, getDocument } from "./handlerFactory";
 import { IBooking } from "../interfaces/IBooking";
+import { cacheService } from "../services/redisService";
 
-const getAllBookings = getAllDocuments<IBooking>(Booking);
-const getBooking = getDocument<IBooking>(Booking);
+const getAllBookings = getAllDocuments<IBooking>(Booking, "bookings");
+const getBooking = getDocument<IBooking>(Booking, "bookings");
 
 const createNewBooking = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -112,6 +113,8 @@ const paymobWebhook = catchAsync(
         }
       }
 
+      await cacheService.delete("bookings"); //remove cache for Bookings
+      await cacheService.delete(`myBookings-${extras.userId}`);
       return res.status(200).json({
         status: "success",
         data: newBooking,
@@ -154,12 +157,17 @@ const cancelBookingByAdmin = catchAsync(
 
       await session.commitTransaction();
 
+      await cacheService.delete("bookings"); 
+      await cacheService.delete(`myBookings-${bookingId}`);
+      await cacheService.delete(`myBookings-${booking.client}`); 
+
       res.status(200).json({
         status: "success",
         message: "Booking canceled and slot is now available.",
       });
     } catch (error) {
       await session.abortTransaction();
+      return next(error);
     } finally {
       session.endSession();
     }
@@ -182,6 +190,10 @@ const markAsPaidByAdmin = catchAsync(
     if (!updatedBooking) {
       return next(new AppError("No booking found with that ID", 404));
     }
+
+    await cacheService.delete(`bookings`);
+    await cacheService.delete(`myBookings-${bookingId}`);
+    await cacheService.delete(`myBookings-${updatedBooking.client}`);
 
     res.status(200).json({
       status: "success",

@@ -8,9 +8,9 @@ import {
 } from "./handlerFactory";
 import { IAdmin } from "../interfaces/IAdmin";
 
-const getAllAssistants = getAllDocuments<IAdmin>(Admin);
-const createNewAssistant = createNewDocument<IAdmin>(Admin);
-const deleteAssistant = deleteDocument<IAdmin>(Admin);
+const getAllAssistants = getAllDocuments<IAdmin>(Admin,"admins");
+const createNewAssistant = createNewDocument<IAdmin>(Admin,"admins");
+const deleteAssistant = deleteDocument<IAdmin>(Admin,"admins");
 
 const getMe = getUser(Admin);
 const updateMe = updateUser(Admin);

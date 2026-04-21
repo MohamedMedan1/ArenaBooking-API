@@ -8,11 +8,11 @@ import {
 } from "./handlerFactory";
 import { IField } from "../interfaces/IField";
 
-const getAllFields = getAllDocuments<IField>(Field);
-const createNewField = createNewDocument<IField>(Field);
+const getAllFields = getAllDocuments<IField>(Field, "fields");
+const createNewField = createNewDocument<IField>(Field, "fields");
 
-const getField = getDocument<IField>(Field);
-const updateField = updateDocument<IField>(Field);
-const deleteField = deleteDocument<IField>(Field);
+const getField = getDocument<IField>(Field, "fields");
+const updateField = updateDocument<IField>(Field, "fields");
+const deleteField = deleteDocument<IField>(Field, "fields");
 
 export { getAllFields, getField, createNewField, updateField, deleteField };

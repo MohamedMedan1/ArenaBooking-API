@@ -8,12 +8,12 @@ import {
 } from "./handlerFactory";
 import { ICategory } from "../interfaces/ICategory";
 
-const getAllCategories = getAllDocuments<ICategory>(Category);
-const createNewCategory = createNewDocument<ICategory>(Category);
+const getAllCategories = getAllDocuments<ICategory>(Category,"categories");
+const createNewCategory = createNewDocument<ICategory>(Category,"categories");
 
-const getCategory = getDocument<ICategory>(Category);
-const updateCategory = updateDocument<ICategory>(Category);
-const deleteCategory = deleteDocument<ICategory>(Category);
+const getCategory = getDocument<ICategory>(Category,"categories");
+const updateCategory = updateDocument<ICategory>(Category,"categories");
+const deleteCategory = deleteDocument<ICategory>(Category,"categories");
 
 export {
   getAllCategories,
