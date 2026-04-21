@@ -103,5 +103,12 @@ bookingSchema.post<IBooking>("save", async function (doc) {
   }
 });
 
+bookingSchema.pre(/^find/, function (this: any) {
+  this.populate({ path: "field", select: "name image" }).populate({
+    path: "client",
+    select: "name email phone",
+  });
+});
+
 const Booking = model<IBooking>("Booking", bookingSchema);
 export { Booking };

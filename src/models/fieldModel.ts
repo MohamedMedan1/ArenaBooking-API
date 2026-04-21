@@ -80,5 +80,9 @@ const fieldSchema = new Schema<IField>(
   { timestamps: true },
 );
 
+fieldSchema.pre(/^find/, function (this: any) {
+  this.populate({ path: "category", select: "name" });
+});
+
 const Field = model<IField>("Field", fieldSchema);
 export { Field };
