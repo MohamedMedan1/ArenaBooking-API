@@ -15,7 +15,6 @@ import { generateTimeSlots } from "../middlewares/generateTimeSlots";
 import bookingRouter from "./bookingRoutes";
 import { protect, restrictTo } from "../controllers/authController";
 import Admin from "../models/adminModel";
-import Client from "../models/clientModel";
 
 const router = express.Router();
 
@@ -28,8 +27,6 @@ router.use("/:fieldId/bookings", bookingRouter);
 
 // Enable Authentication for all coming routes
 router.use(protect(Admin));
-// Enable more specific Authorization for all coming routes
-router.use(restrictTo("manager"));
 
 router
   .route("/")
@@ -50,6 +47,6 @@ router
     generateTimeSlots,
     updateField,
   )
-  .delete(removeImage(Field), deleteField);
+  .delete(restrictTo("manager"),removeImage(Field), deleteField);
 
 export default router;

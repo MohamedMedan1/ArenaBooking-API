@@ -26,7 +26,7 @@ router.post(
   createNewBooking,
 );
 
-router.use(protect(Admin))
+router.use(protect(Admin));
 router.get("/",getAllBookings);
 router.get("/:id", getBooking);
 

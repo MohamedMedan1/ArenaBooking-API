@@ -13,13 +13,11 @@ router.post("/login",login(Admin));
 router.use(protect(Admin));
 
 router.patch("/change-password", changePassword(Admin));
-
 router.route("/me")
   .get(getMe)
   .patch(updateMe);
   
 router.use(restrictTo("manager"));
-
 router.route("/")
   .get(getAllAssistants)
   .post(createNewAssistant);
