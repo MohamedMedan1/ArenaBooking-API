@@ -1,5 +1,5 @@
 import express from "express";
-import { changePassword, login, protect, register } from "../controllers/authController";
+import { changePassword, login, logout, protect, register } from "../controllers/authController";
 import Client from "../models/clientModel";
 import { getMe, updateMe } from "../controllers/clientController";
 import clientBookingRouter from "./clientBookingRoutes";
@@ -10,8 +10,9 @@ const router = express.Router();
 router.post("/login", login(Client));
 router.post("/register", register(Client));
 
-
 router.patch("/change-password",protect(Client), changePassword(Client));
+
+router.post("/logout",protect(Client),logout);
 
 router.use("/me", protect(Client)); 
 router.route("/me")

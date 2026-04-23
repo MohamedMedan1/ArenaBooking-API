@@ -1,4 +1,5 @@
 import { Model as MongooseModel } from "mongoose";
+import { CookieOptions } from "express";
 import { Request, Response, NextFunction } from "express";
 import { IUser } from "../interfaces/IUser";
 import catchAsync from "../utils/catchAsync";
@@ -11,13 +12,26 @@ const generateJWTAndSendResponse = (
   statusCode: number,
 ) => {
   const token: string = jwt.sign({ id: user._id }, process.env.JWT_SECRET!, {
-    expiresIn: "30d",
-  });
+    expiresIn: (process.env.JWT_EXPIRES_IN || "30d") as any,
+  })!;
+
+  const isProduction = process.env.NODE_ENV === "production";
+
+  const cookieOptions:CookieOptions = {
+    expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+  };
+
+  res.cookie("jwt", token, cookieOptions);
+
+  const userResponse = user.toObject();
+  delete userResponse.password;
 
   res.status(statusCode).json({
     status: "success",
-    token,
-    data: user,
+    data: userResponse,
   });
 };
 
@@ -46,13 +60,33 @@ const login = (Model: MongooseModel<IUser>) =>
     generateJWTAndSendResponse(res, user, 200);
   });
 
+const logout = (req: Request, res: Response, next: NextFunction)  => {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  res.cookie('jwt', 'loggedout', {
+    expires: new Date(Date.now() + 10 * 1000), 
+    httpOnly: true,
+    sameSite: isProduction? 'none' : 'lax',
+    secure: isProduction,
+  });
+  res.status(200).json({ status: 'success' });
+}
+
 const protect = (Model: MongooseModel<IUser>) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     // 1)- Catch Token
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) {
-      return next(new AppError("You are not logged in! Please log in.", 401));
+    let token;
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer")
+    ) {
+      token = req.headers.authorization.split(" ")[1];
+    } else if (req.cookies.jwt) {
+      token = req.cookies.jwt;
     }
+
+    if (!token)
+      return next(new AppError("You are not logged in! Please log in.", 401));
 
     // 2)- Token is valid
     const decode = jwt.verify(token!, process.env.JWT_SECRET!) as JwtPayload;
@@ -91,12 +125,17 @@ const restrictTo = (...roles: string[]) => {
   };
 };
 
-const changePassword = (Model:MongooseModel<IUser>) =>
+const changePassword = (Model: MongooseModel<IUser>) =>
   catchAsync(async (req, res, next) => {
     const { currentPassword, newPassword, newPasswordConfirm } = req.body;
 
     if (!currentPassword || !newPassword || !newPasswordConfirm) {
-      return next(new AppError("Please provide your currentPassword , newPassword and newPasswordConfirm", 400));
+      return next(
+        new AppError(
+          "Please provide your currentPassword , newPassword and newPasswordConfirm",
+          400,
+        ),
+      );
     }
 
     const user = await Model.findById(req.user!._id).select("+password");
@@ -104,7 +143,6 @@ const changePassword = (Model:MongooseModel<IUser>) =>
     if (!user) {
       return next(new AppError("There is no user with that Id", 404));
     }
-
 
     if (!(await user.isCorrectPassword(currentPassword))) {
       return next(new AppError("Your current password is in correct", 400));
@@ -114,7 +152,7 @@ const changePassword = (Model:MongooseModel<IUser>) =>
     user.passwordConfirm = newPasswordConfirm;
     await user.save();
 
-    generateJWTAndSendResponse(res,user,200);
+    generateJWTAndSendResponse(res, user, 200);
   });
 
-export { register, login, protect, restrictTo,changePassword };
+export { register, login,logout, protect, restrictTo, changePassword };

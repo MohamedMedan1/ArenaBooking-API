@@ -8,17 +8,30 @@ import bookingRouter from "./routes/bookingRoutes";
 import statsRouter from "./routes/statsRoutes";
 import { globalErrorHandler } from "./controllers/errorController";
 import rateLimit from "express-rate-limit";
-import sanitizer from 'perfect-express-sanitizer';
+import sanitizer from "perfect-express-sanitizer";
 import helmet from "helmet";
 import hpp from "hpp";
-import { whitelist } from "validator";
+import cookieParser from "cookie-parser";
+import cors from "cors";
 import { AppError } from "./utils/appError";
 
 dotenv.config({ path: "./config.env" });
 const app = express();
 
+// Enable tokens via cookies to reach here!
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  }),
+);
+
 // 1)- Preventing User to add some headers to requests
 app.use(helmet());
+
+// CookieParser Middleware to be able to get tokens that get from frontEnd
+app.use(cookieParser());
+
 
 // 2)- Prevent DOS & BRUTE-FORCE
 const limiter = rateLimit({
@@ -32,8 +45,8 @@ app.use(
   sanitizer.clean({
     xss: true,
     noSql: true,
-    sql: false, 
-  })
+    sql: false,
+  }),
 );
 // 4)- Preventing Parameter Pollution
 app.use(
