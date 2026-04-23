@@ -20,6 +20,7 @@ const getAllDocuments = <T>(Model: MongooseModel<T>, key: string) =>
       const features = new APIFeatures(Model.find().lean(), req.query)
         .filter()
         .sort()
+        .limit()
         .fields()
         .paginate();
       allDocuments = await features.query;

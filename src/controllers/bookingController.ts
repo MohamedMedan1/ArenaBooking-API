@@ -68,7 +68,6 @@ const paymobWebhook = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { obj } = req.body;
 
-    console.log(obj);
     if (obj && obj.success === true) {
       const claims = obj.payment_key_claims;
       const extras = claims?.extra;
@@ -145,7 +144,7 @@ const cancelBookingByAdmin = catchAsync(
 
       await processFieldSlot(
         "unLockField",
-        String(field),
+        String(field._id),
         String(bookingDate),
         startTime,
         endTime,
@@ -180,7 +179,7 @@ const markAsPaidByAdmin = catchAsync(
 
     const updatedBooking = await Booking.findByIdAndUpdate(
       bookingId,
-      { isPaid: true, status: "confirmed" },
+      { isPaid: true, status: "completed" },
       {
         new: true,
         runValidators: true,

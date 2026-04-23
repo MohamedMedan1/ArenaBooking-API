@@ -80,14 +80,14 @@ const cancelMyBooking = catchAsync(
       session.startTransaction();
       await processFieldSlot(
         "unLockField",
-        String(req.booking!.field),
+        String(req.booking!.field!._id),
         String(req.booking!.bookingDate),
         req.booking!.startTime,
         req.booking!.endTime,
         session,
       );
 
-      req.booking!.status = "cancelled";
+      req.booking!.status = "canceled";
       await req.booking!.save({ session });
 
       await session.commitTransaction();

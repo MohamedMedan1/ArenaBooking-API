@@ -8,5 +8,6 @@ export const formatDate = (date: Date | string | number) => {
     year: "numeric",
     month: "long",
     day: "numeric",
+    timeZone: "UTC", 
   });
 };

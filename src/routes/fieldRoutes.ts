@@ -24,7 +24,7 @@ router.get("/", getAllFields);
 router.get("/:id", getField);
 
 // ======== Nested Route  ========
-router.use("/:fieldId/bookings", protect(Client), bookingRouter);
+router.use("/:fieldId/bookings", bookingRouter);
 
 // Enable Authentication for all coming routes
 router.use(protect(Admin));

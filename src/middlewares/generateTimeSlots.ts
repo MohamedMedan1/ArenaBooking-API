@@ -8,14 +8,14 @@ const generateTimeSlots = (req: Request, res: Response, next: NextFunction) => {
       new AppError("Please provide price per hour for this field", 400),
     );
 
-  const startDate = new Date()
+  const startDate = new Date();
   startDate.setDate(startDate.getDate() + 1);
-
+  
   const { timeSlots, lastSlotAvailable } = generateSlots(
     7,
     req.body.pricePerHour,
     startDate,
-    0.1
+    0.1,
   );
 
   req.body.timeSlots = timeSlots;

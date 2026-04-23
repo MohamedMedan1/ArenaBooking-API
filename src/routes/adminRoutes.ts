@@ -8,7 +8,6 @@ const router = express.Router();
 
 // =====  Authentication Routes =====
 router.post("/login",login(Admin));
-router.post("/register", register(Admin));
 
 // Enable Authentication
 router.use(protect(Admin));

@@ -6,7 +6,7 @@ const checkSlotAvailability = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
 
     const requiredDate = new Date(req.body.bookingDate);
-    requiredDate.setHours(0,0,0,0);
+    requiredDate.setUTCHours(0, 0, 0, 0);
     
     const targetDate = req.field?.timeSlots.find(cur => new Date(cur.date).toISOString() === requiredDate.toISOString());
     const targetTime = targetDate?.times.find(cur => cur.startTime === req.body.startTime && cur.endTime === req.body.endTime)
