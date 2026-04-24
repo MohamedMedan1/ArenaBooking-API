@@ -2,7 +2,6 @@ import { Schema, model } from "mongoose";
 import { IBooking } from "../interfaces/IBooking";
 import { Email } from "../utils/email";
 import Client from "./clientModel";
-import { AppError } from "../utils/appError";
 import { formatDate } from "../utils/formatDate";
 import { Field } from "./fieldModel";
 
