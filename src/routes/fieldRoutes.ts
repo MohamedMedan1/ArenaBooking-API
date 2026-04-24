@@ -4,6 +4,7 @@ import {
   deleteField,
   getAllFields,
   getField,
+  toggleFieldActivation,
   updateField,
 } from "../controllers/fieldController";
 import { uploadImage } from "../middlewares/uploadImage";
@@ -28,6 +29,7 @@ router.use("/:fieldId/bookings", bookingRouter);
 // Enable Authentication for all coming routes
 router.use(protect(Admin));
 
+router.patch("/:id/activation-toggler", toggleFieldActivation);
 router
   .route("/")
   .post(
@@ -44,9 +46,8 @@ router
     uploadImage,
     resizeImage,
     uploadImageToCloud("fields"),
-    generateTimeSlots,
     updateField,
   )
-  .delete(restrictTo("manager"),removeImage(Field), deleteField);
+  .delete(restrictTo("manager"), removeImage(Field), deleteField);
 
 export default router;
