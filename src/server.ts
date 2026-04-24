@@ -5,11 +5,7 @@ import mongoose from "mongoose";
 const DB_URL = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.cfyrnuj.mongodb.net/arenaBooking?retryWrites=true&w=majority`;
 
 mongoose
-  .connect(DB_URL, {
-    serverSelectionTimeoutMS: 5000,
-    socketTimeoutMS: 45000,
-    family: 4,
-  })
+  .connect(DB_URL)
   .then(() => {
     initJobs();
     console.log("DateBase connected successfully!");

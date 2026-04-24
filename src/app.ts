@@ -18,6 +18,8 @@ import { AppError } from "./utils/appError";
 dotenv.config({ path: "./config.env" });
 const app = express();
 
+app.set('trust proxy', 1);
+
 // Enable tokens via cookies to reach here!
 app.use(
   cors({
@@ -31,7 +33,6 @@ app.use(helmet());
 
 // CookieParser Middleware to be able to get tokens that get from frontEnd
 app.use(cookieParser());
-
 
 // 2)- Prevent DOS & BRUTE-FORCE
 const limiter = rateLimit({
