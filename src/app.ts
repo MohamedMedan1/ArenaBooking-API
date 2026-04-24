@@ -73,4 +73,4 @@ app.all(/.*/, (req: Request, res: Response, next: NextFunction) => {
 
 app.use(globalErrorHandler);
 
-export { app };
+export default app;
