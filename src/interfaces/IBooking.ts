@@ -1,6 +1,6 @@
-import {Document,Types} from "mongoose";
+import { Document, Types } from "mongoose";
 
-export interface IBooking extends Document{
+export interface IBooking extends Document {
   bookingNumber: string;
   field: Types.ObjectId;
   client: Types.ObjectId;
@@ -9,7 +9,7 @@ export interface IBooking extends Document{
   endTime: string;
   duration: number;
   totalPrice: number;
-  deposite: number;
+  deposit: number;
   remaining: number;
   status: string;
   isPaid: boolean;

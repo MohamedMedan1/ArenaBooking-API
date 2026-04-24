@@ -44,9 +44,9 @@ const bookingSchema = new Schema<IBooking>(
       type: Number,
       required: [true, "Please provide total price of Booking"],
     },
-    deposite: {
+    deposit: {
       type: Number,
-      required: [true, "Please provide deposite of Booking"],
+      required: [true, "Please provide deposit of Booking"],
     },
     remaining: {
       type: Number,
@@ -68,7 +68,7 @@ const bookingSchema = new Schema<IBooking>(
 );
 
 bookingSchema.pre<IBooking>("save", function () {
-  this.remaining = this.totalPrice - this.deposite;
+  this.remaining = this.totalPrice - this.deposit;
 
   if (!this.bookingNumber) {
     this.bookingNumber = `BK-${Math.floor(100000 + Math.random() * 900000)}`;

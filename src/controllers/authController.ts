@@ -17,7 +17,7 @@ const generateJWTAndSendResponse = (
 
   const isProduction = process.env.NODE_ENV === "production";
 
-  const cookieOptions:CookieOptions = {
+  const cookieOptions: CookieOptions = {
     expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
     httpOnly: true,
     secure: isProduction,
@@ -31,6 +31,7 @@ const generateJWTAndSendResponse = (
 
   res.status(statusCode).json({
     status: "success",
+    token,
     data: userResponse,
   });
 };
@@ -60,17 +61,17 @@ const login = (Model: MongooseModel<IUser>) =>
     generateJWTAndSendResponse(res, user, 200);
   });
 
-const logout = (req: Request, res: Response, next: NextFunction)  => {
+const logout = (req: Request, res: Response, next: NextFunction) => {
   const isProduction = process.env.NODE_ENV === "production";
 
-  res.cookie('jwt', 'loggedout', {
-    expires: new Date(Date.now() + 10 * 1000), 
+  res.cookie("jwt", "loggedout", {
+    expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
-    sameSite: isProduction? 'none' : 'lax',
+    sameSite: isProduction ? "none" : "lax",
     secure: isProduction,
   });
-  res.status(200).json({ status: 'success' });
-}
+  res.status(200).json({ status: "success" });
+};
 
 const protect = (Model: MongooseModel<IUser>) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -155,4 +156,4 @@ const changePassword = (Model: MongooseModel<IUser>) =>
     generateJWTAndSendResponse(res, user, 200);
   });
 
-export { register, login,logout, protect, restrictTo, changePassword };
+export { register, login, logout, protect, restrictTo, changePassword };

@@ -43,7 +43,7 @@ const createNewBooking = catchAsync(
         totalPrice:
           field.pricePerHour * calculatedData.duration +
           calculatedData.nightCost,
-        deposite: req.body.deposite,
+        deposit: req.body.deposit,
       };
 
       const paymentIntention = await createPaymentIntention(
@@ -90,7 +90,7 @@ const paymobWebhook = catchAsync(
         startTime: extras.startTime,
         endTime: extras.endTime,
         totalPrice: extras.totalPrice,
-        deposite: Math.round(amountPaid),
+        deposit: Math.round(amountPaid),
         duration: extras.duration,
       });
 
@@ -106,7 +106,6 @@ const paymobWebhook = catchAsync(
             email: billingData.email,
             name: billingData.first_name,
           }).sendBookingSuccess(formattedData);
-          console.log("Email sent successfully to:", billingData.email);
         } catch (emailErr) {
           console.error("Email sending failed:", emailErr);
         }

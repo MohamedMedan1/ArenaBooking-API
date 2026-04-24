@@ -13,6 +13,7 @@ import { insertFieldAndClientIds } from "../middlewares/insertFieldAndClientIds"
 import { checkSlotAvailability } from "../middlewares/checkSlotAvailability";
 import { checkFieldIsActive } from "../middlewares/checkFieldIsActive";
 import Admin from "../models/adminModel";
+import { calculateDeposit } from "../middlewares/calculateDeposit";
 
 const router = express.Router({ mergeParams: true });
 
@@ -23,11 +24,12 @@ router.post(
   insertFieldAndClientIds,
   checkFieldIsActive,
   checkSlotAvailability,
+  calculateDeposit,
   createNewBooking,
 );
 
 router.use(protect(Admin));
-router.get("/",getAllBookings);
+router.get("/", getAllBookings);
 router.get("/:id", getBooking);
 
 router.patch("/:bookingId/cancel", cancelBookingByAdmin);

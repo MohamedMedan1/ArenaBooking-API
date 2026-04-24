@@ -5,13 +5,13 @@ export const createPaymentIntention = async (
   const url = "https://accept.paymob.com/v1/intention/";
 
   const body = JSON.stringify({
-    amount: Math.round(bookingInfo.deposite * 100),
+    amount: Math.round(bookingInfo.deposit * 100),
     currency: "EGP",
     payment_methods: [Number(process.env.PAYMOB_INTEGRATION_ID)],
     items: [
       {
         name: "Field Booking Deposit",
-        amount: Math.round(bookingInfo.deposite * 100),
+        amount: Math.round(bookingInfo.deposit * 100),
         description: `Deposit for field ${bookingInfo.field} on ${bookingInfo.bookingDate}`,
         quantity: 1,
       },
@@ -19,7 +19,7 @@ export const createPaymentIntention = async (
     billing_data: {
       first_name: userData.name.split(" ")[0] || "Guest",
       last_name: userData.name.split(" ")[1] || "User",
-      phone_number: userData.phone || "01024753111",
+      phone_number: userData.phone || "+201024753111",
       email: userData.email,
       apartment: "NA",
       floor: "NA",

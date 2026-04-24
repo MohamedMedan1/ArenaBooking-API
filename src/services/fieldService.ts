@@ -47,7 +47,7 @@ export const processFieldSlot = async (
       calculatedData = {
         nightCost: timeSlot.nightCost,
         duration: timeSlot.duration,
-        totalPrice: field.pricePerHour * timeSlot.duration + timeSlot.nightCost,
+        totalPrice: (field.pricePerHour * timeSlot.duration) + timeSlot.nightCost,
       };
     } else if (processJob === "unLockField") {
       timeSlot.isBooked = false;
