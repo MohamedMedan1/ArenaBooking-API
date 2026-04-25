@@ -11,7 +11,7 @@ mongoose
     family: 4,
   })
   .then(() => {
-    initJobs();
+    // initJobs();
     console.log("DateBase connected successfully!");
   })
   .catch((err) => console.error("Database connection error:", err));
