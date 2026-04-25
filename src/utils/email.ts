@@ -15,12 +15,19 @@ export class Email {
 
   private newTransport() {
     return nodemailer.createTransport({
-      service: "Gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure:true,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-    });
+      connectionTimeout: 10000, 
+      greetingTimeout: 5000,
+      dns: {
+        family: 4 
+      }
+    } as any);
   }
 
   async send(
