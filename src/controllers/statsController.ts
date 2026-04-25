@@ -114,16 +114,13 @@ const getDashboardInfo = catchAsync(
               $dateToString: { format: "%Y-%m-%d", date: "$bookingDate" },
             },
             count: { $sum: 1 },
+            originalDate: { $first: "$bookingDate" }, 
           },
         },
-        {
-          $sort: {
-            _id: 1,
-          },
-        },
+        { $sort: { _id: 1 } },
         {
           $project: {
-            date: { $dayOfWeek: "$_id" },
+            dayOfWeek: { $dayOfWeek: "$originalDate" }, 
             count: 1,
             _id: 0,
           },
