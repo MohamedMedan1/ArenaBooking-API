@@ -24,14 +24,10 @@ export class Email {
       },
       connectionTimeout: 10000,
       greetingTimeout: 5000,
-      dns: {
-        family: 4,
-      },
       tls: {
         rejectUnauthorized: false,
-        minVersion: "TLSv1.2",
       },
-    } as any);
+    });
   }
 
   async send(

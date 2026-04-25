@@ -1,3 +1,5 @@
+import dns from "dns";
+dns.setDefaultResultOrder("ipv4first");
 import { initJobs } from "./jobs/index";
 import app from "./app";
 import mongoose from "mongoose";
