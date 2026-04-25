@@ -16,7 +16,7 @@ const getAllDocuments = <T>(Model: MongooseModel<T>, key: string) =>
     const data: T[] | null = await cacheService.get<T[]>(cacheKey);
     let allDocuments: T[];
 
-    if (!data) {
+    if (!data || !data.length) {
       const features = new APIFeatures(Model.find().lean(), req.query)
         .filter()
         .sort()

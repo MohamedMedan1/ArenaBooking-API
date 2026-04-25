@@ -2,9 +2,7 @@ import { initJobs } from "./jobs/index";
 import app from "./app";
 import mongoose from "mongoose";
 
-const DB_URL = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.cfyrnuj.mongodb.net/arenaBooking?retryWrites=true&w=majority`;
-
-console.log("Attempting to connect to:", DB_URL ? "URL exists (hidden for security)" : "URL IS UNDEFINED!");
+const DB_URL = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.cfyrnuj.mongodb.net/`;
 
 mongoose
   .connect(DB_URL, {
@@ -16,11 +14,7 @@ mongoose
     console.log("DateBase connected successfully!");
     initJobs();
   })
-.catch(err => {
-    console.error("FULL ERROR OBJECT:", JSON.stringify(err, null, 2));
-    console.error("ERROR MESSAGE:", err.message);
-    console.error("ERROR CODE:", err.code);
-  });
+  .catch((err) => console.error("Database connection error:", err));
 
 const PORT = process.env.PORT || 8000;
 const server = app.listen(PORT, () => {

@@ -20,7 +20,7 @@ const getMyBookings = catchAsync(
       await cacheService.get<IBooking[]>(cacheKey);
     let myBookings: IBooking[];
 
-    if (!data) {
+    if (!data || !data.length) {
       const features = new APIFeatures(
         Booking.find({ client: req.user!._id }).lean(),
         req.query,
