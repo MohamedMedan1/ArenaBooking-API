@@ -80,6 +80,18 @@ const paymobWebhook = catchAsync(
           .json({ status: "success", message: "No extras" });
       }
 
+      const orderId = claims?.order_id || obj?.order?.id;
+      const existingBooking = await Booking.findOne({
+        paymobOrderId: orderId,
+      });
+
+      if (existingBooking) {
+        return res.status(200).json({
+          status: "success",
+          message: "Already processed",
+        });
+      }
+
       const amountPaid =
         (claims?.amount_cents || obj.order?.amount_cents || 0) / 100;
 
@@ -92,6 +104,7 @@ const paymobWebhook = catchAsync(
         totalPrice: extras.totalPrice,
         deposit: Math.round(amountPaid),
         duration: extras.duration,
+        paymobOrderId: orderId,
       });
 
       const bookingData = newBooking.toObject();
@@ -155,9 +168,9 @@ const cancelBookingByAdmin = catchAsync(
 
       await session.commitTransaction();
 
-      await cacheService.delete("bookings"); 
+      await cacheService.delete("bookings");
       await cacheService.delete(`myBookings-${bookingId}`);
-      await cacheService.delete(`myBookings-${booking.client}`); 
+      await cacheService.delete(`myBookings-${booking.client}`);
 
       res.status(200).json({
         status: "success",

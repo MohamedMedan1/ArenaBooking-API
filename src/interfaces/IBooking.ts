@@ -13,4 +13,5 @@ export interface IBooking extends Document {
   remaining: number;
   status: string;
   isPaid: boolean;
+  paymobOrderId: string;
 }

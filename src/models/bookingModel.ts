@@ -62,6 +62,10 @@ const bookingSchema = new Schema<IBooking>(
         message: "status can be only confirmed | completed | canceled",
       },
     },
+    paymobOrderId: {
+      type: String,
+      unique: true,
+    },
   },
   { timestamps: true },
 );
