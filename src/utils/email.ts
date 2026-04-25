@@ -16,17 +16,21 @@ export class Email {
   private newTransport() {
     return nodemailer.createTransport({
       host: "smtp.gmail.com",
-      port: 465,
-      secure:true,
+      port: 587,
+      secure: false,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-      connectionTimeout: 10000, 
+      connectionTimeout: 10000,
       greetingTimeout: 5000,
       dns: {
-        family: 4 
-      }
+        family: 4,
+      },
+      tls: {
+        rejectUnauthorized: false,
+        minVersion: "TLSv1.2",
+      },
     } as any);
   }
 
@@ -81,7 +85,7 @@ export class Email {
       "passwordChanged",
     );
   }
-  
+
   async sendBookingCancelNotification(bookingData: any) {
     await this.send(
       "Booking Cancellation - Action Required 🏟️",
