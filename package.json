@@ -30,6 +30,7 @@
     "nodemailer": "^8.0.5",
     "perfect-express-sanitizer": "^2.0.2",
     "pug": "^3.0.4",
+    "resend": "^6.12.2",
     "sharp": "^0.34.5",
     "validator": "^13.15.35"
   },

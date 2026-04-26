@@ -1,6 +1,8 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import pug from "pug";
 import path from "path";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export class Email {
   private to: string;
@@ -10,24 +12,21 @@ export class Email {
   constructor(user: { email: string; name: string }) {
     this.to = user.email;
     this.firstName = user.name;
-    this.from = `Field Booking <${process.env.EMAIL_USER}>`;
+    this.from = `Field Booking <${process.env.EMAIL_FROM}>`;
   }
 
   private newTransport() {
-    return nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+    return {
+      sendMail: async (mailOptions: any) => {
+        await resend.emails.send({
+          from: mailOptions.from,
+          to: mailOptions.to,
+          subject: mailOptions.subject,
+          html: mailOptions.html,
+          text: mailOptions.text,
+        });
       },
-      connectionTimeout: 10000,
-      greetingTimeout: 5000,
-      tls: {
-        rejectUnauthorized: false,
-      },
-    });
+    };
   }
 
   async send(
