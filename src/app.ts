@@ -23,7 +23,7 @@ app.set('trust proxy', 1);
 // Enable tokens via cookies to reach here!
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: true,
     credentials: true,
   }),
 );
