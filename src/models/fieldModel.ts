@@ -69,7 +69,7 @@ const fieldSchema = new Schema<IField>(
     ],
     imagePublicId: {
       type: String,
-      required: [true, "Please provide category image public ID!"],
+      required: [true, "Please provide field image public ID!"],
     },
     lastSlotAvailable: Date,
     isActive: {

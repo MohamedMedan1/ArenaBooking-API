@@ -42,7 +42,13 @@ router
 
 router
   .route("/:id")
-  .patch(uploadImage, resizeImage, uploadImageToCloud("fields"), updateField)
+  .patch(
+    uploadImage,
+    removeImage(Field),
+    resizeImage,
+    uploadImageToCloud("fields"),
+    updateField,
+  )
   .delete(restrictTo("manager"), removeImage(Field), deleteField);
 
 export default router;
