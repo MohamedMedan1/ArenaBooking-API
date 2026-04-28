@@ -164,7 +164,7 @@ const cancelBookingByAdmin = catchAsync(
       );
 
       booking.status = "canceled";
-      await booking.save({ session });
+      await booking.save({ session,validateBeforeSave:false });
 
       await session.commitTransaction();
 
