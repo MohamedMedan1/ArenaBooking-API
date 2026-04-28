@@ -10,6 +10,8 @@ import {
 } from "./handlerFactory";
 import { IField } from "../interfaces/IField";
 import { Field } from "../models/fieldModel";
+import mongoose from "mongoose";
+import { Booking } from "../models/bookingModel";
 
 
 const getAllFields = getAllDocuments<IField>(Field,"fields");
@@ -17,7 +19,32 @@ const createNewField = createNewDocument<IField>(Field,"fields");
 
 const getField = getDocument<IField>(Field,"fields");
 const updateField = updateDocument<IField>(Field,"fields");
-const deleteField = deleteDocument<IField>(Field,"fields");
+const deleteField = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    const { id: fieldId } = req.params;
+
+    const field = await Field.findByIdAndDelete(fieldId, { session });
+    if (!field) return next(new AppError("There is no field with that Id", 404));
+
+    await Booking.updateMany({field:fieldId,status:"confirmed"},{$set: { status: "canceled" }}, { session });
+
+    await session.commitTransaction();
+    res.status(204).json({
+      status: "success",
+      message:"Field was deleted successfully!"
+    })
+  } catch (err) {
+    console.log("Delete Field Error: ", err);
+    await session.abortTransaction();
+    return next(err);
+  } finally {
+    await session.endSession();
+  }  
+});
 
 const toggleFieldActivation = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {

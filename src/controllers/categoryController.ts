@@ -46,26 +46,15 @@ const deleteCategory = catchAsync(
         });
       }
 
-      const bulkUpdatesI = {
-        deleteMany: {
-          filter: { category: categoryId },
-        },
-      };
-
-      await Field.bulkWrite([bulkUpdatesI], { session });
-
-      const bulkUpdatesII = fieldsIds?.map((cur: any) => {
-        return {
-          updateMany: {
-            filter: { field: cur._id },
-            update: { $set: { status: "canceled" } },
-          },
-        };
-      });
+      // Remove all fields that were related to deleted category
+      await Field.deleteMany({ category: categoryId }, { session });
 
       // Update all bookings that were realted to deleted fields
-      await Booking.bulkWrite(bulkUpdatesII, { session });
-
+      await Booking.updateMany(
+        { field: { $in: fieldsIds.map((f) => f._id) }, status: "confirmed" },
+        { $set: { status: "canceled" } },
+        { session },
+      );
       await session.commitTransaction();
 
       res.status(204).json({
