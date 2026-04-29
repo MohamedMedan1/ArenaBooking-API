@@ -1,7 +1,9 @@
 import { Resend } from "resend";
+import dotenv from "dotenv";
 import pug from "pug";
 import path from "path";
 
+dotenv.config({ path: "./config.env" });
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export class Email {
