@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev": "ts-node-dev --dns-result-order=ipv4first --respawn --transpile-only src/server.ts",
     "build": "tsc && cp -r src/templates dist/",
-    "start": "node dist/server.js"
+    "start": "node --dns-result-order=ipv4first dist/server.js"
   },
   "keywords": [],
   "author": "",
