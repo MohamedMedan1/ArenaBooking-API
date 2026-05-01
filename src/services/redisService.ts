@@ -27,4 +27,31 @@ export const cacheService = {
       console.error("Redis Delete Error:", err);
     }
   },
-};
+
+deleteByPattern: async (pattern: string) => {
+  try {
+    const stream = redis.scanStream({
+      match: pattern,
+      count: 100,
+    });
+
+    await new Promise<void>((resolve, reject) => {
+      stream.on("data", async (keys: string[]) => {
+        if (keys.length > 0) {
+          stream.pause();
+          
+          const pipeline = redis.pipeline();
+          keys.forEach((key) => pipeline.del(key));
+          await pipeline.exec();
+          
+          stream.resume();
+        }
+      });
+
+      stream.on("end", () => resolve());
+      stream.on("error", (err) => reject(err));
+    });
+  } catch (err) {
+    console.error("Redis deleteByPattern Error:", err);
+  }
+}};

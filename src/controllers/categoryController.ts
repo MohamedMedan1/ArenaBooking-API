@@ -2,7 +2,6 @@ import Category from "../models/categoryModel";
 import { Field } from "../models/fieldModel";
 import {
   createNewDocument,
-  deleteDocument,
   getAllDocuments,
   getDocument,
   updateDocument,
@@ -13,6 +12,7 @@ import { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 import { AppError } from "../utils/appError";
 import { Booking } from "../models/bookingModel";
+import { cacheService } from "../services/redisService";
 
 const getAllCategories = getAllDocuments<ICategory>(Category, "categories");
 const createNewCategory = createNewDocument<ICategory>(Category, "categories");
@@ -56,6 +56,12 @@ const deleteCategory = catchAsync(
         { session },
       );
       await session.commitTransaction();
+
+      await Promise.all([
+        cacheService.deleteByPattern("categories*"),
+        cacheService.deleteByPattern("fields*"),
+        cacheService.deleteByPattern("bookings*"),
+      ]);
 
       res.status(204).json({
         status: "success",
