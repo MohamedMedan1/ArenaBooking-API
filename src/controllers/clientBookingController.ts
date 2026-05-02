@@ -92,9 +92,11 @@ const cancelMyBooking = catchAsync(
 
       await session.commitTransaction();
 
-      await cacheService.delete(`bookings`);
-      await cacheService.delete(`myBookings-${req.user!._id}`);
-      await cacheService.delete(`myBookings-${req.booking!._id}`);
+      await Promise.all([
+        cacheService.deleteByPattern("bookings*"),
+        cacheService.deleteByPattern("myBookings*"),
+        cacheService.deleteByPattern("fields*"),
+      ]);
 
       res.status(200).json({
         status: "success",

@@ -29,22 +29,16 @@ const deleteCategory = catchAsync(
       const category = await Category.findByIdAndDelete(categoryId, {
         session,
       });
-      if (!category)
+
+      if (!category) {
+        await session.abortTransaction();
         return next(new AppError("There is no category with that Id", 404));
+      }
 
       // Remove all fields that were related to deleted category
       const fieldsIds = await Field.find({ category: categoryId }).select(
         "_id",
       );
-
-      if (fieldsIds.length === 0) {
-        await session.commitTransaction();
-
-        return res.status(204).json({
-          status: "success",
-          message: "Category was deleted successfully!",
-        });
-      }
 
       // Remove all fields that were related to deleted category
       await Field.deleteMany({ category: categoryId }, { session });

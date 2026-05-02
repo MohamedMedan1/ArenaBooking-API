@@ -28,30 +28,38 @@ export const cacheService = {
     }
   },
 
-deleteByPattern: async (pattern: string) => {
-  try {
-    const stream = redis.scanStream({
-      match: pattern,
-      count: 100,
-    });
-
-    await new Promise<void>((resolve, reject) => {
-      stream.on("data", async (keys: string[]) => {
-        if (keys.length > 0) {
-          stream.pause();
-          
-          const pipeline = redis.pipeline();
-          keys.forEach((key) => pipeline.del(key));
-          await pipeline.exec();
-          
-          stream.resume();
-        }
+  deleteByPattern: async (pattern: string) => {
+    try {
+      const stream = redis.scanStream({
+        match: pattern,
+        count: 100,
       });
 
-      stream.on("end", () => resolve());
-      stream.on("error", (err) => reject(err));
-    });
-  } catch (err) {
-    console.error("Redis deleteByPattern Error:", err);
-  }
-}};
+      const tasks: Promise<any>[] = [];
+
+      await new Promise<void>((resolve, reject) => {
+        stream.on("data", (keys: string[]) => {
+          if (keys.length) {
+            const pipeline = redis.pipeline();
+            keys.forEach((key) => pipeline.del(key));
+
+            tasks.push(pipeline.exec());
+          }
+        });
+
+        stream.on("end", async () => {
+          try {
+            await Promise.all(tasks);
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        });
+
+        stream.on("error", reject);
+      });
+    } catch (err) {
+      console.error("Redis deleteByPattern Error:", err);
+    }
+  },
+};

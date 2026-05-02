@@ -50,7 +50,10 @@ const createNewBooking = catchAsync(
         bookingInfo,
         req.user,
       );
+
       await session.commitTransaction();
+      await cacheService.deleteByPattern("fields*");
+
       res.status(200).json({
         status: "success",
         paymentUrl: `https://accept.paymob.com/unifiedcheckout/?publicKey=${process.env.PAYMOB_PUBLIC_KEY}&clientSecret=${paymentIntention.client_secret}`,
@@ -124,8 +127,11 @@ const paymobWebhook = catchAsync(
         }
       }
 
-      await cacheService.delete("bookings"); //remove cache for Bookings
-      await cacheService.delete(`myBookings-${extras.userId}`);
+      await Promise.all([
+        cacheService.deleteByPattern("bookings*"),
+        cacheService.deleteByPattern("myBookings*"),
+      ]);
+
       return res.status(200).json({
         status: "success",
         data: newBooking,
@@ -164,13 +170,15 @@ const cancelBookingByAdmin = catchAsync(
       );
 
       booking.status = "canceled";
-      await booking.save({ session,validateBeforeSave:false });
+      await booking.save({ session, validateBeforeSave: false });
 
       await session.commitTransaction();
 
-      await cacheService.delete("bookings");
-      await cacheService.delete(`myBookings-${bookingId}`);
-      await cacheService.delete(`myBookings-${booking.client}`);
+      await Promise.all([
+        cacheService.deleteByPattern("bookings*"),
+        cacheService.deleteByPattern("myBookings*"),
+        cacheService.deleteByPattern("fields*"),
+      ]);
 
       res.status(200).json({
         status: "success",
@@ -202,9 +210,10 @@ const markAsPaidByAdmin = catchAsync(
       return next(new AppError("No booking found with that ID", 404));
     }
 
-    await cacheService.delete(`bookings`);
-    await cacheService.delete(`myBookings-${bookingId}`);
-    await cacheService.delete(`myBookings-${updatedBooking.client}`);
+    await Promise.all([
+      cacheService.deleteByPattern("bookings*"),
+      cacheService.deleteByPattern("myBookings*"),
+    ]);
 
     res.status(200).json({
       status: "success",
