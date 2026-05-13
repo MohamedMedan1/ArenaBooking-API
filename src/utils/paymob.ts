@@ -43,7 +43,7 @@ export const createPaymentIntention = async (
     },
 
     notification_url: `${process.env.BACKEND_URL}/api/v1/fields/${bookingInfo.field}/bookings/webhook`,
-    redirection_url: `${process.env.FRONTEND_URL}/booking-success`,
+    redirection_url: `${process.env.FRONTEND_URL}/bookingConfirm`,
   });
 
   const response = await fetch(url, {
