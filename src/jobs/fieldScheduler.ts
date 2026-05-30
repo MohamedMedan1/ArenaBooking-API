@@ -3,22 +3,16 @@ import { Field } from "../models/fieldModel";
 import { generateSlots } from "../utils/generateSlots";
 
 export const fieldJob = () => {
-  const cronTime = process.env.FIELD_JOB_CRON || "0 0 * * *";
+  let cronTime = process.env.FIELD_JOB_CRON || "0 0 * * *";
 
   cron.schedule(cronTime, async () => {
-    console.log("⏰ [Cron Job] Starting automated slots generation...");
+    console.log("⏰ [Cron Job] Starting automated slots management...");
 
     try {
-      const targetDate = new Date();
-      targetDate.setDate(targetDate.getDate() + 2);
-      targetDate.setHours(0, 0, 0, 0);
-
-      const fields = await Field.find({
-        lastSlotAvailable: { $lte: targetDate },
-      });
+      const fields = await Field.find({});
 
       if (!fields || fields.length === 0) {
-        console.log("💤 [Cron Job] No fields need slots update today.");
+        console.log("[Cron Job] No fields found in database.");
         return;
       }
 
@@ -26,22 +20,33 @@ export const fieldJob = () => {
       const today = new Date();
       today.setHours(0, 0, 0, 0); 
 
-      for (const field of fields) {
-        const startDate = new Date(field.lastSlotAvailable);
-        startDate.setDate(startDate.getDate() + 1);
-        
-        const { timeSlots: newTimeSlots, lastSlotAvailable } = generateSlots(
-          7,
-          field.pricePerHour,
-          startDate,
-          0.1,
-        );
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() + 2);
+      targetDate.setHours(0, 0, 0, 0);
 
-        const filteredOldSlots = field.timeSlots.filter(
+      for (const field of fields) {
+        let updatedTimeSlots = field.timeSlots.filter(
           (slot: any) => new Date(slot.date) >= today
         );
 
-        const updatedTimeSlots = [...filteredOldSlots, ...newTimeSlots];
+        let currentLastSlot:any = new Date(field.lastSlotAvailable);
+        let currentLastSlotCheck = new Date(field.lastSlotAvailable);
+        currentLastSlotCheck.setHours(0, 0, 0, 0);
+
+        if (currentLastSlotCheck <= targetDate) {
+          const startDate = new Date(currentLastSlot);
+          startDate.setDate(startDate.getDate() + 1);
+          
+          const {timeSlots: newTimeSlots, lastSlotAvailable} = generateSlots(
+            7,
+            field.pricePerHour,
+            startDate,
+            0.1,
+          );
+
+          updatedTimeSlots = [...updatedTimeSlots, ...newTimeSlots];
+          currentLastSlot = lastSlotAvailable;
+        }
 
         const fieldUpdate = {
           updateOne: {
@@ -49,7 +54,7 @@ export const fieldJob = () => {
             update: {
               $set: {
                 timeSlots: updatedTimeSlots, 
-                lastSlotAvailable
+                lastSlotAvailable: currentLastSlot
               }
             },
           },
@@ -60,7 +65,7 @@ export const fieldJob = () => {
 
       if (fieldsUpdates.length > 0) {
         const result = await Field.bulkWrite(fieldsUpdates);
-        console.log(`✅ [Cron Job] Successfully updated ${result.modifiedCount} fields.`);
+        console.log(`✅ [Cron Job] Database Sync Done. Processed ${result.modifiedCount} fields.`);
       }
 
     } catch (error) {
@@ -68,5 +73,3 @@ export const fieldJob = () => {
     }
   });
 };
-
-
