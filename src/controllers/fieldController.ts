@@ -71,6 +71,8 @@ const toggleFieldActivation = catchAsync(
     field.isActive = !field.isActive;
     await field.save();
 
+    await cacheService.deleteByPattern("fields*");
+
     res.status(200).json({
       status: "success",
       message: `Field is now ${field.isActive ? "active" : "inactive"}`,
