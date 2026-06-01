@@ -5,7 +5,6 @@ import Admin from "../models/adminModel";
 import {
   createNewDocument,
   deleteDocument,
-  getAllDocuments,
   getUser,
   updateUser,
 } from "./handlerFactory";

@@ -44,6 +44,8 @@ const deleteField = catchAsync(
       await Promise.all([
         cacheService.deleteByPattern("fields*"),
         cacheService.deleteByPattern("bookings*"),
+        cacheService.delete("admin-dashboard"),
+        cacheService.delete("manager-analytics"),
       ]);
 
       res.status(204).json({
@@ -71,7 +73,11 @@ const toggleFieldActivation = catchAsync(
     field.isActive = !field.isActive;
     await field.save();
 
-    await cacheService.deleteByPattern("fields*");
+    await Promise.all([
+      cacheService.deleteByPattern("fields*"),
+      cacheService.delete("admin-dashboard"),
+      cacheService.delete("manager-analytics"),
+    ]);
 
     res.status(200).json({
       status: "success",

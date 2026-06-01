@@ -52,7 +52,11 @@ const createNewBooking = catchAsync(
       );
 
       await session.commitTransaction();
-      await cacheService.deleteByPattern("fields*");
+      await Promise.all([
+        cacheService.deleteByPattern("fields*"),
+        cacheService.delete("admin-dashboard"),
+        cacheService.delete("manager-analytics"),
+      ]);
 
       res.status(200).json({
         status: "success",
@@ -130,6 +134,8 @@ const paymobWebhook = catchAsync(
       await Promise.all([
         cacheService.deleteByPattern("bookings*"),
         cacheService.deleteByPattern("myBookings*"),
+        cacheService.delete("admin-dashboard"),
+        cacheService.delete("manager-analytics"),
       ]);
 
       return res.status(200).json({
@@ -178,6 +184,8 @@ const cancelBookingByAdmin = catchAsync(
         cacheService.deleteByPattern("bookings*"),
         cacheService.deleteByPattern("myBookings*"),
         cacheService.deleteByPattern("fields*"),
+        cacheService.delete("admin-dashboard"),
+        cacheService.delete("manager-analytics"),
       ]);
 
       res.status(200).json({
@@ -213,6 +221,8 @@ const markAsPaidByAdmin = catchAsync(
     await Promise.all([
       cacheService.deleteByPattern("bookings*"),
       cacheService.deleteByPattern("myBookings*"),
+      cacheService.delete("admin-dashboard"),
+      cacheService.delete("manager-analytics"),
     ]);
 
     res.status(200).json({

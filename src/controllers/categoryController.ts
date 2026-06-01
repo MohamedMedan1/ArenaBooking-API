@@ -55,6 +55,8 @@ const deleteCategory = catchAsync(
         cacheService.deleteByPattern("categories*"),
         cacheService.deleteByPattern("fields*"),
         cacheService.deleteByPattern("bookings*"),
+        cacheService.delete("admin-dashboard"),
+        cacheService.delete("manager-analytics"),
       ]);
 
       res.status(204).json({

@@ -60,7 +60,12 @@ const getDocument = <T>(Model: MongooseModel<T>, key: string) =>
 const createNewDocument = <T>(Model: MongooseModel<T>, key: string) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const newDocument = await Model.create(req.body);
-    await cacheService.delete(key);
+
+    await Promise.all([
+      cacheService.delete(key),
+      cacheService.delete("admin-dashboard"),
+      cacheService.delete("manager-analytics"),
+    ]);
 
     res.status(201).json({
       status: "success",
@@ -84,8 +89,12 @@ const updateDocument = <T>(Model: MongooseModel<T>, key: string) =>
     if (!updatedDocument)
       return next(new AppError("There is no document with that Id", 404));
 
-    await cacheService.deleteByPattern(`${key}*`);
-    await cacheService.set(cacheKey, updatedDocument, 3600);
+    await Promise.all([
+      cacheService.deleteByPattern(`${key}*`),
+      cacheService.delete("admin-dashboard"),
+      cacheService.delete("manager-analytics"),
+      cacheService.set(cacheKey, updatedDocument, 3600),
+    ]);
 
     res.status(200).json({
       status: "success",
@@ -100,7 +109,11 @@ const deleteDocument = <T>(Model: MongooseModel<T>, key: string) =>
 
     if (!doc) return next(new AppError("No document found with that ID", 404));
 
-    await cacheService.deleteByPattern(`${key}*`);
+    await Promise.all([
+      cacheService.deleteByPattern(`${key}*`),
+      cacheService.delete("admin-dashboard"),
+      cacheService.delete("manager-analytics"),
+    ]);
 
     res.status(204).json({
       status: "success",

@@ -96,6 +96,8 @@ const cancelMyBooking = catchAsync(
         cacheService.deleteByPattern("bookings*"),
         cacheService.deleteByPattern("myBookings*"),
         cacheService.deleteByPattern("fields*"),
+        cacheService.delete("admin-dashboard"),
+        cacheService.delete("manager-analytics"),
       ]);
 
       res.status(200).json({
